@@ -7,6 +7,8 @@
  */
 
 import React, { Component } from 'react';
+import StackNavigation from './src/navigation/stackNavigation'
+import {NavigationContainer} from '@react-navigation/native'
 import {
   SafeAreaView,
   StyleSheet,
@@ -28,9 +30,9 @@ class App extends Component {
 
   render() {
     return (
-      <View>
-        <Text>LES GIBI</Text>
-      </View>
+      <NavigationContainer>
+      <StackNavigation />
+      </NavigationContainer>
     )
   }
 }
