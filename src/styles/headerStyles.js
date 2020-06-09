@@ -3,17 +3,19 @@ import {colors} from '../styles'
 
 const headerStyles=StyleSheet.create({
 mainHeader:{
+    paddingRight:15,
     height:56,
     width:'100%',
     backgroundColor:'#151D27',
     flexDirection:'row',
     elevation:10,
+    justifyContent:'space-between',
     alignItems:'center'
 },
 headerText:{
     textAlign:'center',
     textAlignVertical:'center',
-    paddingLeft:9,
+    paddingLeft:8,
     fontSize:27,
     fontFamily:'sans-serif-medium',
     color:'#ff0000',

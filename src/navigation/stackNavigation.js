@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
-import { createStackNavigator } from '@react-navigation/stack'
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack'
 import BottomTab from './bottomTabNav'
+import {DetailScreen} from '../screens'
 const Stack = createStackNavigator();
 
 const StackNavigation = () => {
     return (
-        <Stack.Navigator headerMode={"none"}>
+        <Stack.Navigator screenOptions={{cardStyleInterpolator:CardStyleInterpolators.forFadeFromBottomAndroid}} headerMode={"none"}>
             <Stack.Screen name='Movie Library' component={BottomTab} />
+            <Stack.Screen name='Detail Screen' component={DetailScreen} />
         </Stack.Navigator>)
 }
 
