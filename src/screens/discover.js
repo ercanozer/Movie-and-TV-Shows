@@ -17,6 +17,7 @@ export default class Discover extends Component {
     state = {
         offsetY: new Animated.Value(0),
         genresMovie: [],
+        searchState:false,
         genresTV: []
     }
 
@@ -35,16 +36,17 @@ export default class Discover extends Component {
         const headerY = this.state.offsetY.interpolate({
             inputRange: [0, MAX_HEIGHT - MIN_HEIGHT],
             outputRange: [0, -78],
-            extrapolateRight: 'clamp'
+            extrapolateRight: 'clamp',
         })
         const rotateX = this.state.offsetY.interpolate({
             inputRange: [0, MAX_HEIGHT - MIN_HEIGHT],
-            outputRange: ['0deg', '160deg']
+            outputRange: ['0deg', '160deg'],
         })
 
 
         return (
             <View style={{ backgroundColor: colors.mainBackgroundColor, flex: 1, alignItems: 'center' }}>
+             {this.state.searchState && <SearchView />}   
                 <Animated.View style={{ backgroundColor: colors.mainBackgroundColor, width: '100%', zIndex: 1000, height: null, overflow: 'hidden', minHeight: 0, position: 'absolute', translateY: headerY, alignItems: 'center', paddingBottom: 7 }}>
 
                     <Animated.Text style={{
@@ -56,12 +58,13 @@ export default class Discover extends Component {
                         height: null,
                         overflow: 'hidden'
                     }}> Discover </Animated.Text>
-                    <SearchComponent />
+                    <SearchComponent openSearch={()=>this.setState({searchState:true})} />
                 </Animated.View>
 
                 <Animated.ScrollView
-                    scrollEventThrottle={16}
+                  
                     style={{ width: '100%', flex: 1 }}
+
                     onScroll={Animated.event(
                         [
                             {
@@ -73,10 +76,10 @@ export default class Discover extends Component {
                         { useNativeDriver: true } // <-- Add this
                     )} >
                     <View style={{ paddingTop: MAX_HEIGHT - 50 }}>
-                        <Text style={{color:'red',fontWeight:'700',right:10,fontSize:14,alignSelf:'flex-end',marginBottom:9}}>Discover by filters</Text>
+                        <Text style={{ color: 'red', fontWeight: '700', right: 10, fontSize: 14, alignSelf: 'flex-end', marginBottom: 9 }}>Discover by filters</Text>
                         <Text style={{ color: 'white', alignSelf: "center", fontSize: 23, marginBottom: 20, fontFamily: 'sans-serif-medium' }}>Top Categories</Text>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginBottom: 40 }}>
-                            {TopCategories.map((item, index) => <TopItem name={item.name} imageURL={item.imageURL} />)}
+                            {TopCategories.map((item, index) => <TopItem name={item.name} key={index.toString()} imageURL={item.imageURL} />)}
 
                         </View>
 
@@ -89,10 +92,11 @@ export default class Discover extends Component {
     }
 }
 
-const SearchComponent = () => {
+const SearchComponent = ({openSearch}) => {
 
     return (
-        <TouchableOpacity activeOpacity={0.7} style={{
+        <TouchableOpacity onPress={openSearch} delayPressIn={0} delayPressOut={0} activeOpacity={1} style={{
+        
             width: Dimensions.get('window').width / 1.1,
             backgroundColor: 'white', borderRadius: 23, flexDirection: 'row', alignItems: 'center'
         }}>
@@ -141,20 +145,28 @@ const ListItem = ({ title, navigation }) => {
 const TopItem = ({ name, imageURL }) => {
 
     return (
-        <TouchableOpacity activeOpacity={0.6}>
+        <TouchableOpacity style={{elevation:15,borderRadius:9,marginBottom:15}} activeOpacity={0.6}>
 
             <View style={{
-                borderRadius: 15, width: Dimensions.get('screen').width / 2.2,
+                borderRadius: 9, width: Dimensions.get('screen').width / 2.2,
                 aspectRatio: 1.8,
                 alignSelf: 'center',
-                overflow: 'hidden'
-                , marginBottom: 15,
+                overflow: 'hidden',
                 justifyContent: 'center'
             }}>
                 <Image style={{ width: '100%', height: '100%' }} resizeMode='center' source={{ uri: imageURL }} />
-                <View style={{ width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.4, position: 'absolute', }}></View>
+                <View style={{ width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.5, position: 'absolute', }}></View>
                 <Text style={{ position: 'absolute', alignSelf: 'center', fontSize: 18, color: 'white', fontFamily: 'sans-serif-medium' }}>{name}</Text>
             </View>
         </TouchableOpacity>
+    )
+}
+
+const SearchView = () => {
+
+    return (
+        <View style={{flex:1,width:'100%',height:'100%',backgroundColor:colors.mainBackgroundColor,position:'absolute',zIndex:9000}}>
+
+        </View>
     )
 }
