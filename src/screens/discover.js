@@ -4,6 +4,7 @@ import { colors } from '../styles'
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
 import { ScrollView } from 'react-native-gesture-handler'
 import { fetchGenres } from '../services/requests'
+import {GenresComponent} from '../components'
 import {
     AdMobBanner
 } from 'react-native-admob'
@@ -127,41 +128,7 @@ const SearchComponent = ({ openSearch }) => {
     )
 }
 
-const GenresComponent = ({ mainTitle, allData }) => {
 
-    return (
-        <View style={{ width: '100%', padding: 8, alignItems: 'flex-start', marginBottom: 40 }}>
-            <Text style={{ color: 'white', fontSize: 22, marginBottom: 17, fontFamily: "sans-serif-medium" }}>{mainTitle}</Text>
-            <GenresList listData={allData} />
-        </View>
-    )
-}
-
-const GenresList = ({ listData, navigation }) => {
-    
-
-    return (
-        <FlatList style={{ width: '100%' }}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={listData}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item, index }) => <ListItem navigation={navigation} key={index} title={item.name} />} />
-    )
-}
-
-const ListItem = ({ title, navigation }) => {
-
-    return (
-        <TouchableOpacity style={{
-            flexDirection: 'row', justifyContent: 'flex-start', width: null, alignItems: 'center'
-            , backgroundColor: '#69779b', paddingLeft: 8, paddingRight: 8, borderRadius: 40, marginRight: 6
-        }}>
-            <Text style={{ color: '#e6f5ff', marginRight: 6, fontSize: 15, paddingBottom: 2 }}>{title}</Text>
-            <FontAwesome5Icon style={{}} name='angle-right' size={25} color='lightblue' />
-        </TouchableOpacity>
-    )
-}
 
 const TopItem = ({ name, imageURL }) => {
 

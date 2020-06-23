@@ -1,3 +1,8 @@
 export {default as Header} from './header'
 export {default as ListComponent} from './listComponent'
 export {default as TabView} from './detailTab'
+export {default as About} from './about'
+export {default as Cast} from './cast'
+export {default as Recommendation} from './recommendation'
+export {default as GenresComponent} from './genresComponent'
+export {default as DetailInfo} from './detailInfo'
