@@ -6,37 +6,33 @@ import {GenresComponent,DetailInfo} from '../components'
 
 class About extends Component {
     state={
-        y:7000
+        y:3000
     }
     componentDidMount(){
         console.log('CALISMA BE')
-
     }
    
 render(){
     const translateY = this.props.offset.interpolate({
-        inputRange: [0,windowHeight/1.8,this.state.y-windowHeight/1.8-windowHeight/1.8 >=0? this.state.y-windowHeight/1.8:windowHeight/1.8+1],
-        outputRange: [0,0,-this.state.y+windowHeight],
-        extrapolate:'extend'
+        inputRange: [0,windowHeight/1.8,(windowHeight-100)<=this.state.y?windowHeight/1.8+(this.state.y-(windowHeight-100)):windowHeight/1.8],
+        outputRange: [0,0,(windowHeight-100)<=this.state.y?-(this.state.y-(windowHeight-100)):-100],
+        extrapolate:'clamp'
         
     });
+    console.log(this.props.scrollHeight,'sadasdassssssssssssssd')
     return(
-        <Animated.ScrollView
-        bounces={false}    
-        nestedScrollEnabled={true}
-        scrollEventThrottle={16}
-        onScroll={({nativeEvent})=>console.log(nativeEvent.contentOffset.y)}>
+
                <Animated.View onLayout={({nativeEvent})=>{
-               console.log(nativeEvent.layout.height-windowHeight/1.8)
-               this.setState({y:nativeEvent.layout.height})}} style={{translateY:translateY}}>
+                   console.log(nativeEvent.layout.height)
+                   this.props.setHeight(0,nativeEvent.layout.height)
+                   this.setState({y:nativeEvent.layout.height})}} style={{translateY:translateY,paddingBottom:50}}>
                <View style={styles.textContainer}>
                    <Text suppressHighlighting={true} style={styles.overviewText}>{this.props.overview}</Text>
                </View>
                <GenresComponent allData={this.props.genres} mainTitle='Genres' />
-               <DetailInfo detailInfo={this.props.detailInfo} />
+              
                <DetailInfo detailInfo={this.props.detailInfo} />
                </Animated.View>
-           </Animated.ScrollView>
        )
     }
     }

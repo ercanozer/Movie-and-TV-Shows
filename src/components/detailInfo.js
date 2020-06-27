@@ -27,13 +27,11 @@ const InfoItem = ({ infoData }) => {
                    }else{
                        return <View style={{ flexDirection: 'row', justifyContent: 'flex-start',marginBottom:17 }}>
                        <Text style={styles.itemText}>Production Companies</Text>
-                       <View  >
-
-                   {item.production_companies.map((value,index)=><Text style={[styles.itemText,{color:'white',textAlign:'left',marginBottom:2}]}>{value.name} {index!=item.production_companies.length-1 && ','}</Text>)}
+                       <View style={{flexDirection:'row',width:'100%',flexWrap:'wrap'}} >
+                   {item.production_companies.map((value,index)=><Text style={[styles.itemText,{color:'white',textAlign:'left',marginBottom:2,flexBasis:'100%'}]}>{value.name} {index!=item.production_companies.length-1 && ','}</Text>)}
                        </View>
                    </View>
                    }
-                   return null;
                   
                    
                 }

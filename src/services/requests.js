@@ -1,4 +1,5 @@
 import axios from "axios"
+import { platform } from "os";
 const key = '044fd0a3f04bf451cef5916e03dbb2f0';
 export const fetchTrendMovies = async () => {
 
@@ -25,6 +26,20 @@ export const fetchDiscoverTvOrMovie = async (platform, network) => {
     }
   }).then(res=>res.data)
 }
+
+export const fetchSearchQuery=(text,page)=>{
+
+  return axios.get('https://api.themoviedb.org/3/search/multi?api_key=044fd0a3f04bf451cef5916e03dbb2f0',{
+    params:{
+      query:text,
+      page:page
+    }
+  }).then(res=>res.data)
+}
+
+export const fetchCast = async (platform,id) =>{
+  return axios.get(`https://api.themoviedb.org/3/${platform}/${id}/credits?api_key=044fd0a3f04bf451cef5916e03dbb2f0&language=en-US`).then(res=>res.data)
+}  
 
 export const fetchGenres = async (title) => {
 

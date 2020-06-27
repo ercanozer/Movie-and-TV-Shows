@@ -3,7 +3,7 @@ import { Text, View, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Image
 import { colors } from '../styles'
 import { SliderBox } from 'react-native-image-slider-box'
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
-import { fetchDetail } from '../services/requests'
+import { fetchDetail ,fetchCast} from '../services/requests'
 import { SvgUri, SvgCssUri, SvgXml } from 'react-native-svg'
 import TypeWirter from 'react-native-typewriter'
 import { TabView } from '../components'
@@ -21,8 +21,10 @@ export default class DetailScreen extends Component {
         allData: {},
         offset: new Animated.Value(0),
         detailInfo:[],
+        cast:[],
         enabled:true,
         loading:true,
+        scrollHeight:5000,
 
     }
 
@@ -31,6 +33,7 @@ export default class DetailScreen extends Component {
 
         const val = this.props.route.params;
         const allData = await fetchDetail(val.params.media_type, val.params.id);
+        const castData = await fetchCast(val.params.media_type, val.params.id);
         var images = [];
         images.push('https://image.tmdb.org/t/p/original' + allData.backdrop_path)
         allData.images.backdrops.forEach((element, index) => {
@@ -55,7 +58,7 @@ export default class DetailScreen extends Component {
         infos.push(...[{'Original Title':val.params.name},{Budget:budget},{'Original Language':original_language},{revenue},{Runtime:episode_run_time[0]},{Runtime:runtime},{production_companies},{Seasons:seasons.length},])
         console.log(infos)
 
-        this.setState({ allData: allData, backDrops: [...images], image: 'https://image.tmdb.org/t/p/original' + val.params.imageUrl,detailInfo:infos,loading:false})
+        this.setState({cast:castData,allData, backDrops: [...images], image: 'https://image.tmdb.org/t/p/original' + val.params.imageUrl,detailInfo:infos,loading:false})
 
 
     }
@@ -68,9 +71,10 @@ export default class DetailScreen extends Component {
             outputRange: [0,100],
             extrapolate: "extend"
         });
-        console.log(this.state.enabled)
+        console.log(this.state.scrollHeight,'lelelelelel')
         return (
-           !this.state.loading ? <View style={styles.mainContainer}>
+           !this.state.loading ? <View   onLayout={({nativeEvent})=>this.setState({scrollHeight:nativeEvent.layout.height})}
+           style={styles.mainContainer}>
 
                 <BackIcon name={this.props.route.params.params.name} height={this.state.offset} />
 
@@ -88,7 +92,7 @@ export default class DetailScreen extends Component {
                         { useNativeDriver: true }
                     )}>
 
-                    <Animated.View style={{ height: windowHeight / 1.8}}>
+                    <View style={{ height: windowHeight / 1.8}}>
                         <BackGroundView images={this.state.backDrops} />
                         <MainInformation
                             voteAvarage={this.state.allData.vote_average}  
@@ -97,17 +101,20 @@ export default class DetailScreen extends Component {
                             status={this.state.allData.status}
                             uri={this.state.image}
                             name={this.props.route.params.params.name} />
-                    </Animated.View>
+                    </View>
 
-                    <Animated.View
-                        style={{ }} >
+                    <View
+                        style={{paddingBottom:50}} >
                         <TabView
+                            cast={this.state.cast}
                             setEnabled={()=>this.setState({enabled:!this.state.enabled})}
                             detailInfo={this.state.detailInfo}
                             genres={this.state.allData.genres}
                             overview={this.state.allData.overview}
-                            offset={this.state.offset} />
-                    </Animated.View>
+                            offset={this.state.offset}
+                            scrollHeight={this.state.scrollHeight}
+                            />
+                    </View>
                 </Animated.ScrollView >
             </View> : <View style={{backgroundColor:colors.mainBackgroundColor,flex:1,alignItems:'center',justifyContent:'center'}}>
                 <ActivityIndicator size={50} color='white' />

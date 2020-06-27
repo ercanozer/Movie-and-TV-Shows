@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import { Text, View, TouchableOpacity, Dimensions, Animated, FlatList, Image } from 'react-native'
 import { colors } from '../styles'
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
 import { ScrollView } from 'react-native-gesture-handler'
 import { fetchGenres } from '../services/requests'
-import {GenresComponent} from '../components'
+import {GenresComponent,SearchView} from '../components'
 import {
     AdMobBanner
 } from 'react-native-admob'
@@ -50,7 +50,7 @@ export default class Discover extends Component {
 
         return (
             <View style={{ backgroundColor: colors.mainBackgroundColor, flex: 1, alignItems: 'center' }}>
-                {this.state.searchState && <SearchView />}
+                {this.state.searchState && <SearchView closeSearch={()=>this.setState({searchState:false})} navigation={this.props.navigation} />}
                 <Animated.View style={{ backgroundColor: colors.mainBackgroundColor, width: '100%', zIndex: 1000, height: null, overflow: 'hidden', minHeight: 0, position: 'absolute', translateY: headerY, alignItems: 'center', paddingBottom: 7 }}>
 
                     <Animated.Text style={{
@@ -150,11 +150,3 @@ const TopItem = ({ name, imageURL }) => {
     )
 }
 
-const SearchView = () => {
-
-    return (
-        <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: colors.mainBackgroundColor, position: 'absolute', zIndex: 9000 }}>
-
-        </View>
-    )
-}

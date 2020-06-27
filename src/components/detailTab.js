@@ -1,16 +1,22 @@
 import React, { Component } from 'react'
 import { TabView, TabBar, SceneMap } from 'react-native-tab-view';
-import { Text, View, StyleSheet, Dimensions, ScrollView, Animated, ActivityIndicator } from 'react-native'
+import { Text, View, StyleSheet, Dimensions, ScrollView, Animated, ActivityIndicator, LayoutAnimation, UIManager } from 'react-native'
 import { colors, windowHeight } from '../styles'
 import { About, Cast, Recommendation } from '../components'
 
 
 
-
+if (Platform.OS === 'android') {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }
 
 
 class DetailTabView extends Component {
 
+    
+    
     state = {
         navState: {
             index: 0,
@@ -19,35 +25,51 @@ class DetailTabView extends Component {
                 { key: 'cast', title: 'Cast', offset: this.props.offset },
                 { key: 'recommendation', title: 'Recommendation' },
             ],
-        }
+        },
+        heights:[300,300,300]
     };
 
-    _handleIndexChange = index => this.setState(({ navState }) => ({ navState: { ...navState, index } }));
+    _handleIndexChange = index => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        this.setState(({ navState }) => ({ navState: { ...navState, index }}))
+    };
 
-    scenes=SceneMap({
+  setHeight=(index,value)=>{
+   
+  
+
+        let copyHeight=[...this.state.heights]
+        copyHeight[index]= value;
+        this.setState({heights:copyHeight})
+    }
+ scenes=SceneMap({
         about: (props) => {
-            return <About {...props.route} setEnabled={this.props.setEnabled} genres={this.props.genres} overview={this.props.overview} detailInfo={this.props.detailInfo} />
+            return <About setHeight={this.setHeight} {...props.route} scrollHeight={this.props.scrollHeight} setEnabled={this.props.setEnabled} genres={this.props.genres} overview={this.props.overview} detailInfo={this.props.detailInfo} />
         },
-        cast: (props) => <Cast {...props.route} />,
+        cast: (props) => <Cast setHeight={this.setHeight} {...props.route}   cast={this.props.cast} /> ,
         recommendation: (props) => <Recommendation {...props.route} />
     })
 
+   
     render() {
+ 
 
 
         return (
 
             <TabView
-            style={{backgroundColor:colors.mainBackgroundColor}}
+        
+            style={{height:this.state.heights[this.state.navState.index]}}
                 renderTabBar={(props) => {
                     return <TabBar {...props}
+                        
                         jumpTo={(key)=>props.jumpTo(key)}
                         pressColor='#1f4068'
                         indicatorStyle={{ backgroundColor: 'red' }}
                         inactiveColor='gray'
                         scrollEnabled={true}
                         labelStyle={{ textTransform: 'capitalize', fontSize: 15, fontFamily: 'sans-serif-medium' }} 
-                        style={{ backgroundColor: colors.mainBackgroundColor}} 
+                        style={{ backgroundColor: colors.mainBackgroundColor,height:50}} 
                         tabStyle={{ borderRadius: 20, width: 'auto', marginLeft: 15, marginRight: 15 }} />
                 }
            }
