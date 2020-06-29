@@ -1,6 +1,8 @@
 import axios from "axios"
 import { platform } from "os";
 const key = '044fd0a3f04bf451cef5916e03dbb2f0';
+const CancelToken = axios.CancelToken;
+var cancel;
 export const fetchTrendMovies = async () => {
 
   return axios.get('https://api.themoviedb.org/3/trending/movie/day?api_key=' + key +
@@ -27,9 +29,10 @@ export const fetchDiscoverTvOrMovie = async (platform, network) => {
   }).then(res=>res.data)
 }
 
-export const fetchSearchQuery=(text,page)=>{
-
+export const fetchSearchQuery=(text,page,source)=>{
+  if (cancel !== undefined) cancel();
   return axios.get('https://api.themoviedb.org/3/search/multi?api_key=044fd0a3f04bf451cef5916e03dbb2f0',{
+    cancelToken: new CancelToken(c => cancel = c),
     params:{
       query:text,
       page:page

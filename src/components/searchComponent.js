@@ -2,12 +2,12 @@ import React, { Component, useState, useEffect } from 'react'
 import { Text, View, FlatList, StyleSheet, Dimensions, Image, ActivityIndicator, Animated,TextInput } from 'react-native'
 import MaterialTabs from 'react-native-material-tabs';
 import { colors, windowHeight } from '../styles';
-
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { TabView, TabBar, SceneMap } from 'react-native-tab-view';
 import ActorComponent from './actorComponent';
 import { fetchSearchQuery } from '../services/requests';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import Axios from 'axios';
 
 
 
@@ -34,10 +34,12 @@ const SearchView = (props) => {
             setData({0:[],1:[],2:[]})
 
         }else{
+
+
              fetchSearchQuery(query,1).then(res1=>{
-        fetchSearchQuery(query,2).then(res2=>{
+           fetchSearchQuery(query,2).then(res2=>{
             var array0=(res1.results.filter((item,index)=>item.media_type=='movie')).push(res2.results.filter((item,index)=>item.media_type=='movie'));
-            console.log(array0,'bok')
+         
             setData(prevState=>({
                 ...prevState,
                 0:(res1.results.filter((item,index)=>item.media_type=='movie')).concat(res2.results.filter((item,index)=>item.media_type=='movie')),
@@ -127,7 +129,7 @@ const SearchView = (props) => {
                  style={{width:'100%'}} 
                  keyExtractor={(item,index)=>index} 
                  data={data[selectedTab]}
-                 numColumns={3}
+                 numColumns={selectedTab == 2 ?1:3}
                  contentContainerStyle={{alignItems:'flex-start'}}
                  onEndReached={refreshData}
                  onEndReachedThreshold={0.8}

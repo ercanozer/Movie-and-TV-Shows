@@ -13,6 +13,7 @@ import {
 const MAX_HEIGHT = 200
 const MIN_HEIGHT = 105
 
+
 const TopCategories = [{ name: 'Movies', imageURL: 'https://images8.alphacoders.com/100/thumb-1920-1003220.png', id: 'movie' }
     , { name: 'TV Shows', id: 'tv', imageURL: 'https://images2.alphacoders.com/879/thumb-1920-879599.png' }
     , { id: 'person', name: 'People', imageURL: 'https://images5.alphacoders.com/487/thumb-1920-487823.jpg' }]

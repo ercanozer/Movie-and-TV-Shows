@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.azendoo.reactnativesnackbar.SnackbarPackage;
 import com.BV.LinearGradient.LinearGradientPackage;
 import com.reactnativecommunity.viewpager.RNCViewPagerPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
