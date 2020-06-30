@@ -11,6 +11,7 @@ import { color } from 'react-native-reanimated'
 import shortid from 'shortid'
 import { windowHeight } from '../styles'
 import { saveToStorage, removeItemFromStorage } from '../utilities/saveFavorite'
+import SvgVoteIcon from '../components/icons/VoteIcon'
 
 
 
@@ -166,14 +167,13 @@ const MainInformation = ({ uri, name, relaseDate = '', status, voteAvarage = '',
     )
 }
 
-
 const TmdbLogo = ({ voteAvarage, voteCount, addFavorite, isFavorite }) => {
 
     return (
         <View style={{ padding: 7, flexDirection: 'row', width: '100%' }}>
             <View style={{ backgroundColor: 'black', borderRadius: 18, padding: 9 }} >
 
-                <SvgCssUri width={30} height={30} uri='https://www.themoviedb.org/assets/2/v4/logos/v2/blue_square_2-d537fb228cf3ded904ef09b136fe3fec72548ebc1fea3fbbd1ad9e36364db38b.svg' />
+                <SvgVoteIcon />
             </View>
             <View style={{ marginLeft: 7 }}>
                 <Text style={{ fontSize: 17, color: 'white', alignSelf: 'flex-start', fontFamily: 'sans-serif-medium' }}>{voteAvarage.toString().split('.').join('')}%</Text>
