@@ -1,5 +1,5 @@
-import React, { Component, useState, useEffect } from 'react'
-import { Text, View, FlatList, StyleSheet, Dimensions, Image, ActivityIndicator, Animated, TextInput } from 'react-native'
+import React, { Component, useState, useEffect, useRef } from 'react'
+import { Text, View, FlatList, StyleSheet, Dimensions, Image, ActivityIndicator, Animated, TextInput, LayoutAnimation, UIManager, DrawerLayoutAndroid, Modal } from 'react-native'
 import MaterialTabs from 'react-native-material-tabs';
 import { colors, windowHeight } from '../styles';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
@@ -9,8 +9,21 @@ import { fetchSearchQuery } from '../services/requests';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Axios from 'axios';
 import SvgVoteIcon from './icons/VoteIcon';
+import RippleButton from 'react-native-material-ripple'
+import { WheelePicker, FilterModals } from '.';
+import MaterialRipple from 'react-native-material-ripple'
+if (
+    Platform.OS === "android" &&
+    UIManager.setLayoutAnimationEnabledExperimental
+) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
-
+const SortData = [
+    { text: 'Release Date', id: 'release_date' },
+    { text: 'Popularity', id: 'popularity' },
+    { text: 'Vote Avarage', id: 'vote_avarage' },
+]
 
 const SearchView = (props) => {
     const [numColumn, setNumColumn] = useState(3);
@@ -18,8 +31,14 @@ const SearchView = (props) => {
     const [selectedTab, setSelectedTab] = useState(0);
     const [page, setPage] = useState(1);
     const [query, setQuery] = useState('');
+    const [filterState, setFilterState] = useState(false);
+    const drawerRef = React.createRef();
+    const [sortFilter, setSortFilter] = useState('popularity');
+    const [sortType, setSortType] = useState('desc')
+    const [filterMode, setFilterMode] = useState(null)
 
-    const [opacityValue] = useState(new Animated.Value(windowHeight));
+
+
 
     const changeLayout = () => {
         setNumColumn(() => numColumn == 2 ? 3 : 2)
@@ -58,6 +77,8 @@ const SearchView = (props) => {
 
     }
 
+
+
     useEffect(() => {
 
 
@@ -73,95 +94,117 @@ const SearchView = (props) => {
                     2: prevState[2].concat(res.results.filter((item, index) => item.media_type == 'person'))
                 }))
 
-                console.log(res.page)
             })
         }
 
 
     }, [page])
 
-    useEffect(() => {
+    const changeProperties = (newValue, changeType) => {
+        switch (changeType) {
+            case 'setSortType': setSortType(newValue);
+                break;
+
+            case 'setSortFilter': setSortFilter(newValue);
+                break;
 
 
-        Animated.timing(opacityValue, {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true,
-        }).start((result) => console.log(result))
-        console.log('reaaytrarraarraara')
-
-
+        }
     }
-        , [])
 
+    const changeFilterMode = (newMode) => {
+        setFilterMode(newMode)
+    }
 
     return (
-        <Animated.View style={{ flex: 1, width: '100%', translateY: opacityValue, height: windowHeight, paddingBottom: 223, backgroundColor: colors.mainBackgroundColor, position: 'absolute', zIndex: 9000 }}>
-            <Animated.View style={{ backgroundColor: '#222831' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', padding: 6,justifyContent:'space-around' }}>
-                    <TouchableOpacity activeOpacity={0.5}>
-                        <FontAwesome5Icon onPress={props.closeSearch} style={{ marginLeft: 5 }} color='white' name='chevron-left' size={29} />
-                    </TouchableOpacity>
 
-                    <TextInput
-                        onChangeText={changeText}
-                        placeholder='Search...' placeholderTextColor='gray' style={{ width: '80%', fontSize: 17.3, color: 'white', marginLeft: 12 }} />
-                    <TouchableOpacity style={{}} delayPressOut={0} activeOpacity={0.6}  onPress={changeLayout}>
-                        <FontAwesome5Icon style={{ marginLeft:0 }} color='white' name={numColumn == 2 ? 'th-list' : 'th'} size={24} />
-                    </TouchableOpacity>
-                </View>
-                <View style={{ width: '70%', borderRadius: 15, overflow: 'hidden', alignSelf: 'center' }}>
-                    <MaterialTabs
-                        textStyle={{ fontFamily: 'sans-serif-medium', fontSize: 13 }}
-                        items={['Movies', 'TV Shows', 'People']}
-                        selectedIndex={selectedTab}
-                        activeTextStyle={{ color: 'red', }}
-                        onChange={setSelectedTab}
-                        barColor='#222831'
-                        indicatorColor="red"
-                        activeTextColor="white"
-                    />
+        <DrawerLayoutAndroid ref={drawerRef} renderNavigationView={() => <SearchFilter
+            sortBySelectedText={sortType}
+            sortBySelectedId={sortFilter}
+            changeProperties={changeProperties}
+            type={filterMode}
+            setFilterMode={changeFilterMode}
+            contentData={'example'}
+        />
 
-                </View>
-                <View style={{ backgroundColor: colors.mainBackgroundColor }}>
+        }
+            drawerPosition='right'
+            style={{ elevation: 0 }}
+            drawerBackgroundColor={colors.mainBackgroundColor}
+            drawerWidth={Dimensions.get('window').width / 1.35}>
 
-                    {query != '' ?
-                        <FlatList
-                            key={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
-                            style={{ width: '100%', paddingTop: 10 }}
-                            keyExtractor={(item, index) => index}
-                            data={data[selectedTab]}
-                            numColumns={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
-                            contentContainerStyle={{ alignItems: 'flex-start' }}
-                            onEndReached={refreshData}
-                            onEndReachedThreshold={0.8}
-                            ListFooterComponent={<ActivityIndicator color='white' size={40} />}
-                            ListFooterComponentStyle={{ alignSelf: 'center', margin: 10 }}
-                            renderItem={({ item, index }) => item.media_type == 'person' ? <CastComp key={index} path={item.profile_path} name={item.name} characterName={item.character} /> : numColumn != 2 ? <ListItem
-                                id={item.id}
-                                media_type={item.media_type}
-                                navigation={props.navigation}
-                                key={index}
-                                title={item.media_type == 'movie' ? item.original_title : item.name}
-                                imageURL={item.poster_path} /> : <SpreadItem id={item.id}
+
+
+            <Animated.View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: colors.mainBackgroundColor }}>
+
+                <ToggleButton onClick={() => drawerRef.current.openDrawer()} />
+                <Animated.View style={{ backgroundColor: '#222831' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 6, justifyContent: 'space-around' }}>
+                        <TouchableOpacity activeOpacity={0.5}>
+                            <FontAwesome5Icon onPress={() => props.navigation.goBack()} style={{ marginLeft: 5 }} color='white' name='chevron-left' size={29} />
+                        </TouchableOpacity>
+
+                        <TextInput
+                            onChangeText={changeText}
+                            placeholder='Search...' placeholderTextColor='gray' style={{ width: '80%', fontSize: 17.3, color: 'white', marginLeft: 12 }} />
+                        <TouchableOpacity delayPressOut={0} activeOpacity={0.6} onPress={changeLayout}>
+                            <FontAwesome5Icon style={{ marginLeft: 0 }} color='white' name={numColumn == 2 ? 'th-list' : 'th'} size={24} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ width: '100%', alignSelf: 'center' }}>
+
+                        <MaterialTabs
+                            textStyle={{ fontFamily: 'sans-serif-medium', fontSize: 13 }}
+                            items={['Movies', 'TV Shows', 'People']}
+                            selectedIndex={selectedTab}
+                            activeTextStyle={{ color: 'red', }}
+                            onChange={setSelectedTab}
+                            barColor='#222831'
+                            indicatorColor="red"
+                            activeTextColor="white"
+                        />
+
+
+                    </View>
+                    <View style={{ backgroundColor: colors.mainBackgroundColor }}>
+
+                        {query != '' ?
+                            <FlatList
+                                key={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
+                                style={{ width: '100%', paddingTop: 10 }}
+                                keyExtractor={(item, index) => index}
+                                data={data[selectedTab]}
+                                numColumns={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
+                                contentContainerStyle={{ alignItems: 'flex-start' }}
+                                onEndReached={refreshData}
+                                onEndReachedThreshold={0.8}
+                                ListFooterComponent={<ActivityIndicator color='white' size={40} />}
+                                ListFooterComponentStyle={{ alignSelf: 'center', margin: 10 }}
+                                renderItem={({ item, index }) => item.media_type == 'person' ? <CastComp key={index} path={item.profile_path} name={item.name} characterName={item.character} /> : numColumn != 2 ? <ListItem
+                                    id={item.id}
                                     media_type={item.media_type}
                                     navigation={props.navigation}
                                     key={index}
                                     title={item.media_type == 'movie' ? item.original_title : item.name}
-                                    imageURL={item.poster_path}
-                                    voteAvarage={item.vote_average}
-                                    relaseDate={item.media_type == 'movie' ? item.release_date : item.first_air_date} />} /> : <View style={{ alignItems: 'center' }}><Text style={{ color: 'gray', fontSize: 30, alignSelf: 'center', marginTop: 20, marginBottom: 5, fontFamily: 'sans-serif-medium' }}>Search Something</Text><FontAwesome5Icon size={35} color='gray' name='search' /></View>}
+                                    imageURL={item.poster_path} /> : <SpreadItem id={item.id}
+                                        media_type={item.media_type}
+                                        navigation={props.navigation}
+                                        key={index}
+                                        title={item.media_type == 'movie' ? item.original_title : item.name}
+                                        imageURL={item.poster_path}
+                                        voteAvarage={item.vote_average}
+                                        relaseDate={item.media_type == 'movie' ? item.release_date : item.first_air_date} />} /> : <View style={{ alignItems: 'center' }}><Text style={{ color: 'gray', fontSize: 30, alignSelf: 'center', marginTop: 20, marginBottom: 5, fontFamily: 'sans-serif-medium' }}>Search Something</Text><FontAwesome5Icon size={35} color='gray' name='search' /></View>}
 
 
-                </View>
+                    </View>
 
+                </Animated.View>
             </Animated.View>
-        </Animated.View>
+        </DrawerLayoutAndroid>
     )
 }
 const ListItem = ({ title, imageURL, navigation, id, media_type }) => {
 
-    console.log(imageURL)
     return (
         <TouchableOpacity
             style={{ width: Dimensions.get('window').width / 3.25, margin: 5 }} onPress={() => navigation.navigate('Detail Screen', { params: { id: id, media_type: media_type, imageUrl: imageURL, name: title } })} activeOpacity={0.8}>
@@ -189,8 +232,8 @@ const SpreadItem = ({ title, relaseDate, voteAvarage, id, imageURL, navigation, 
                         source={{ uri: 'https://image.tmdb.org/t/p/original' + imageURL }} /> : <FontAwesome5Icon style={{ textAlign: 'center', textAlignVertical: 'center', width: '100%', aspectRatio: 0.67, borderRadius: 10 }} name='camera' color='gray' size={40} />}
                 </View>
                 <View style={{ marginLeft: 14, flex: 1 }} >
-                    <Text style={{ color: 'white', padding: 2, fontSize: 18,fontFamily: 'sans-serif-medium' ,paddingRight:14}}>{title}</Text>
-                    <Text numberOfLines={1} style={{ color: 'gray', padding: 2, fontSize: 14, marginTop: 4 }}>{relaseDate.split('-')[0]}</Text>
+                    <Text style={{ color: 'white', padding: 2, fontSize: 18, fontFamily: 'sans-serif-medium', paddingRight: 14 }}>{title}</Text>
+                    <Text numberOfLines={1} style={{ color: 'gray', padding: 2, fontSize: 14, marginTop: 4 }}>{relaseDate != undefined && relaseDate.split('-')[0]}</Text>
                 </View>
                 <View style={{ flexDirection: "row", position: 'absolute', bottom: 5, right: 30, alignItems: 'center' }}>
                     <View style={{ backgroundColor: 'black', borderRadius: 18, padding: 9, flexDirection: "row" }}>
@@ -199,6 +242,7 @@ const SpreadItem = ({ title, relaseDate, voteAvarage, id, imageURL, navigation, 
                     <Text style={{ fontSize: 16, color: 'white', fontFamily: 'sans-serif-medium', marginLeft: 7 }}>{voteAvarage.toString().split('.').join('')}%</Text>
                 </View>
             </View>
+
         </TouchableOpacity>
     )
 }
@@ -217,7 +261,6 @@ const CastComp = ({ path, name, characterName }) => {
 }
 
 const ImageItem = ({ profilePath }) => {
-    console.log(profilePath)
     return (
 
         <View style={styles.imageContainer}>
@@ -225,6 +268,80 @@ const ImageItem = ({ profilePath }) => {
         </View>
     )
 }
+
+const ToggleButton = ({ onClick }) => {
+
+    return (
+        <RippleButton
+            onPress={() => onClick()}
+            style={{
+                position: 'absolute', alignItems: 'center'
+                , justifyContent: 'center', bottom: 20, right: 10, borderRadius: Dimensions.get('window').width / 6.4 / 2, backgroundColor: '#160f30', shadowColor: '#000',
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 1,
+                shadowRadius: Dimensions.get('window').width / 7 / 2,
+                elevation: 3
+                , width: Dimensions.get('window').width / 6.4, aspectRatio: 1
+            }}>
+            <FontAwesome5Icon color='red' name='searchengin' size={32} />
+        </RippleButton>
+    )
+}
+
+
+const mainFilterData = [
+    'Sort by',
+    'Genres',
+    'Date',
+    'Vote Avarage'
+]
+
+const SearchFilter = ({ height, sortByData, sortBySelectedId, sortBySelectedText,  changeProperties, type, setFilterMode, contentData }) => {
+
+    return (
+        <View style={{ flex: 1 }}>
+            {
+                type != null ? <FilterModals
+
+                    changeProperties={changeProperties}
+                    type={type}
+                    setFilterMode={setFilterMode}
+                    sortData={SortData}
+                    sortByState={sortBySelectedText}
+                    sortBySelectedId={sortBySelectedId} />
+
+                    : <View>
+                        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 14, paddingLeft: 14, marginTop: 10 }}>
+                            <Text style={styles.drawerText}>Discover</Text>
+                            <TouchableOpacity activeOpacity={0.8} style={{ borderRadius: 8, borderWidth: 1.5, borderColor: 'red', padding: 4 }}>
+                                <Text style={{ color: 'red', fontFamily: 'sans-serif-medium', fontSize: 15, textAlignVertical: 'center' }}>Done</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{ margin: 0, marginTop: 28 }}>
+                            {mainFilterData.map((value, index) => <DrawerItem title={value} changeFilterMode={setFilterMode} key={index} content={contentData[value]} />)}
+                        </View>
+
+                    </View>
+
+            }
+
+
+        </View>
+
+    )
+}
+const DrawerItem = ({ title, content, changeFilterMode }) => {
+
+    return (
+        <TouchableOpacity onPress={() => changeFilterMode(title)} activeOpacity={0.8} style={{ borderBottomColor: '#fff', borderBottomWidth: 0.25, marginTop: 9, paddingLeft: 14, paddingBottom: 11 }}>
+            <Text style={[styles.drawerText, { fontSize: 17 }]}>{title}</Text>
+            <Text style={[styles.drawerText, { fontSize: 14, color: 'gray', fontFamily: 'sans-serif-bold' }]}>example</Text>
+        </TouchableOpacity>
+
+    )
+
+}
+
 
 const styles = StyleSheet.create({
     imageContainer: {
@@ -241,7 +358,15 @@ const styles = StyleSheet.create({
         fontFamily: 'sans-serif-medium',
         fontSize: 18,
         marginBottom: 4
+    },
+    drawerText: {
+        color: 'white',
+        fontFamily: 'sans-serif-medium',
+        fontSize: 27,
+        textAlignVertical: 'center'
     }
+
+
 })
 
 

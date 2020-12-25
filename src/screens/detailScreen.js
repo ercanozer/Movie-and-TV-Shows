@@ -31,15 +31,15 @@ export default class DetailScreen extends Component {
         isFavorite: false,
 
     }
-
+    routes = this.props.route.params;
     async componentDidMount() {
 
 
-        const val = this.props.route.params;
+     
         const keys = await AsyncStorage.getAllKeys();
-        if (keys.includes(val.params.id.toString())) this.setState({ isFavorite: true })
-        const allData = await fetchDetail(val.params.media_type, val.params.id);
-        const castData = await fetchCast(val.params.media_type, val.params.id);
+        if (keys.includes(this.routes.params.id.toString())) this.setState({ isFavorite: true })
+        const allData = await fetchDetail(this.routes.params.media_type, this.routes.params.id);
+        const castData = await fetchCast(this.routes.params.media_type, this.routes.params.id);
         var images = [];
         images.push('https://image.tmdb.org/t/p/original' + allData.backdrop_path)
         allData.images.backdrops.forEach((element, index) => {
@@ -61,23 +61,21 @@ export default class DetailScreen extends Component {
 
         } = allData;
         var infos = [];
-        infos.push(...[{ 'Original Title': val.params.name }, { Budget: budget }, { 'Original Language': original_language }, { revenue }, { Runtime: episode_run_time[0] }, { Runtime: runtime }, { production_companies }, { Seasons: seasons.length },])
-        console.log(infos)
+        infos.push(...[{ 'Original Title': this.routes.params.name }, { Budget: budget }, { 'Original Language': original_language }, { revenue }, { Runtime: episode_run_time[0] }, { Runtime: runtime }, { production_companies }, { Seasons: seasons.length },])
 
-        this.setState({ cast: castData, allData, backDrops: [...images], image: 'https://image.tmdb.org/t/p/original' + val.params.imageUrl, detailInfo: infos, loading: false })
+    
+        this.setState({ cast: castData, allData, backDrops: [...images], image: 'https://image.tmdb.org/t/p/original' + this.routes.params.imageUrl, detailInfo: infos, loading: false })
 
 
     }
 
     changeFavorite = (type) => {
-        console.log(type, 'opopopopopopoop')
         if (type == 'add') {
 
             saveToStorage(this.state.allData.id, this.props.route.params.params.name, this.props.route.params.params.media_type, this.props.route.params.params.imageUrl).then(res => {
-                console.log(res, 'addddddddddddddddddddddddddddddddddd')
 
                 this.setState({ isFavorite: true })
-            }).catch(res => console.log(res, 'roroororo'))
+            }).catch(res =>res)
         } else {
             removeItemFromStorage(this.state.allData.id)
             this.setState({ isFavorite: false })
@@ -126,9 +124,13 @@ export default class DetailScreen extends Component {
                             name={this.props.route.params.params.name} />
                     </View>
 
+            
                     <View
-                        style={{ paddingBottom: 50 }} >
+                        style={{ paddingBottom: 50}} >
                         <TabView
+                            id={this.state.allData.id}
+                            media_type={this.routes.params.media_type}
+                            navigation={this.props.navigation}
                             cast={this.state.cast}
                             setEnabled={() => this.setState({ enabled: !this.state.enabled })}
                             detailInfo={this.state.detailInfo}

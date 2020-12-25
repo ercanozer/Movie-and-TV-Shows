@@ -9,7 +9,7 @@ export class Header extends Component {
         return (
             <View style={headerStyles.mainHeader}>
                 <Text style={headerStyles.headerText}>MovieTime</Text>
-               <Search />
+               
             </View>
         )
     }   

@@ -87,6 +87,8 @@ target 'TheMovieApp' do
 
   pod 'RNSnackbar', :path => '../node_modules/react-native-snackbar'
 
+  pod 'react-native-admob-native-ads', :path => '../node_modules/react-native-admob-native-ads'
+
   target 'TheMovieAppTests' do
     inherit! :complete
     # Pods for testing

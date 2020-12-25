@@ -6,7 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler'
 import { fetchGenres } from '../services/requests'
 import {GenresComponent,SearchView} from '../components'
 import {
-    AdMobBanner
+    AdMobBanner,
 } from 'react-native-admob'
 
 
@@ -22,7 +22,6 @@ export default class Discover extends Component {
     state = {
         offsetY: new Animated.Value(0),
         genresMovie: [],
-        searchState: false,
         genresTV: []
     }
 
@@ -51,7 +50,6 @@ export default class Discover extends Component {
 
         return (
             <View style={{ backgroundColor: colors.mainBackgroundColor, flex: 1, alignItems: 'center' }}>
-                {this.state.searchState && <SearchView closeSearch={()=>this.setState({searchState:false})} navigation={this.props.navigation} />}
                 <Animated.View style={{ backgroundColor: colors.mainBackgroundColor, width: '100%', zIndex: 1000, height: null, overflow: 'hidden', minHeight: 0, position: 'absolute', translateY: headerY, alignItems: 'center', paddingBottom: 7 }}>
 
                     <Animated.Text style={{
@@ -63,7 +61,7 @@ export default class Discover extends Component {
                         height: null,
                         overflow: 'hidden'
                     }}> Discover </Animated.Text>
-                    <SearchComponent openSearch={() => this.setState({ searchState: true })} />
+                    <SearchComponent openSearch={() => this.props.navigation.navigate('Search Screen')} />
                 </Animated.View>
 
                 <Animated.ScrollView
@@ -86,8 +84,7 @@ export default class Discover extends Component {
                               <AdMobBanner
                             
                             adSize="banner"
-                            adUnitID="ca-app-pub-3940256099942544/6300978111"
-                            testDevices={[AdMobBanner.simulatorId]}
+                            adUnitID="ca-app-pub-3940256099942544/6300978111"                       
                             onAdFailedToLoad={error => console.error(error)}
                         />
                         </View>

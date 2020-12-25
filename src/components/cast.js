@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Text, View, Animated } from 'react-native'
 import {ActorComponent} from '../components'
 import { windowHeight } from '../styles';
+import { AdMobBanner } from 'react-native-admob';
 
 export default class Cast extends Component {
     state={
@@ -20,6 +21,15 @@ export default class Cast extends Component {
             <Animated.View onLayout={({nativeEvent})=>{
                                this.props.setHeight(1,nativeEvent.layout.height)
                 this.setState({y:nativeEvent.layout.height})}} style={{translateY:translateY,paddingBottom:50,}}>
+                    <View style={{alignSelf:'center',marginTop:15}}>
+
+<AdMobBanner
+
+adSize="banner"
+adUnitID="ca-app-pub-3940256099942544/6300978111"                       
+onAdFailedToLoad={error => console.error(error)}
+/>
+</View>
                 <ActorComponent castData={this.props.cast} />
             </Animated.View>
            </View> 

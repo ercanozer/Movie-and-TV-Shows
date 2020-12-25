@@ -2,6 +2,7 @@ import React, { Component, useState, useEffect } from 'react'
 import { Text, View, Animated, StyleSheet } from 'react-native'
 import {colors,windowHeight} from '../styles'
 import {GenresComponent,DetailInfo} from '../components'
+import { AdMobBanner } from 'react-native-admob'
 
 
 class About extends Component {
@@ -9,7 +10,6 @@ class About extends Component {
         y:3000
     }
     componentDidMount(){
-        console.log('CALISMA BE')
     }
    
 render(){
@@ -19,13 +19,21 @@ render(){
         extrapolate:'clamp'
         
     });
-    console.log(this.props.scrollHeight,'sadasdassssssssssssssd')
     return(
 
                <Animated.View onLayout={({nativeEvent})=>{
-                   console.log(nativeEvent.layout.height)
-                   this.props.setHeight(0,nativeEvent.layout.height)
+
+                this.props.setHeight(0,nativeEvent.layout.height)
                    this.setState({y:nativeEvent.layout.height})}} style={{translateY:translateY,paddingBottom:50}}>
+                       <View style={{alignSelf:'center',marginTop:15}}>
+
+                             <AdMobBanner
+                            
+                            adSize="banner"
+                            adUnitID="ca-app-pub-3940256099942544/6300978111"                       
+                            onAdFailedToLoad={error => console.error(error)}
+                            />
+                            </View>
                <View style={styles.textContainer}>
                    <Text suppressHighlighting={true} style={styles.overviewText}>{this.props.overview}</Text>
                </View>

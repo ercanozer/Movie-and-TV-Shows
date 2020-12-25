@@ -71,3 +71,10 @@ export const fetchDetail = async (media_type,id) => {
   }).catch(err=>console.log(err))
 
 }
+export const fetchRecommendetion = async (media_type,id) => {
+  return await axios.get(`https://api.themoviedb.org/3/${media_type}/${id}/recommendations?api_key=044fd0a3f04bf451cef5916e03dbb2f0`)
+}
+
+export const fetchAdvancedQuery = async () => {
+  
+}

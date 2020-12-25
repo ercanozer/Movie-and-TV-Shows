@@ -23,10 +23,10 @@ class DetailTabView extends Component {
             routes: [
                 { key: 'about', title: 'About', offset: this.props.offset },
                 { key: 'cast', title: 'Cast', offset: this.props.offset },
-                { key: 'recommendation', title: 'Recommendation' },
+                { key: 'recommendation', title: 'Recommendation',offset: this.props.offset },
             ],
         },
-        heights:[300,300,300]
+        heights:[300,300,270]
     };
 
     _handleIndexChange = index => {
@@ -35,9 +35,6 @@ class DetailTabView extends Component {
     };
 
   setHeight=(index,value)=>{
-   
-  
-
         let copyHeight=[...this.state.heights]
         copyHeight[index]= value;
         this.setState({heights:copyHeight})
@@ -47,7 +44,7 @@ class DetailTabView extends Component {
             return <About setHeight={this.setHeight} {...props.route} scrollHeight={this.props.scrollHeight} setEnabled={this.props.setEnabled} genres={this.props.genres} overview={this.props.overview} detailInfo={this.props.detailInfo} />
         },
         cast: (props) => <Cast setHeight={this.setHeight} {...props.route}   cast={this.props.cast} /> ,
-        recommendation: (props) => <Recommendation {...props.route} />
+        recommendation: (props) => <Recommendation {...props.route} setHeight={this.setHeight} {...props.route} navigation={this.props.navigation} id={this.props.id} media_type={this.props.media_type} />
     })
 
    
@@ -83,15 +80,5 @@ class DetailTabView extends Component {
         );
     }
 }
-
-
-
-
-
-const styles = StyleSheet.create({
-    scene: {
-
-    }
-})
 
 export default DetailTabView;

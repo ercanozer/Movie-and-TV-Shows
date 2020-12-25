@@ -7,6 +7,7 @@ const styles = StyleSheet.create({
         color: 'white'
     },
     style: {
+      
         backgroundColor: '#1F2836',
         borderTopWidth: 0,
     }

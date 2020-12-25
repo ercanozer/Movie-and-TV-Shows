@@ -2,13 +2,15 @@ import React, { Component } from 'react'
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack'
 import BottomTab from './bottomTabNav'
 import {DetailScreen} from '../screens'
+import {SearchView} from '../components'
 const Stack = createStackNavigator();
 
 const StackNavigation = () => {
     return (
-        <Stack.Navigator screenOptions={{cardStyleInterpolator:CardStyleInterpolators.forHorizontalIOS}} headerMode={"none"}>
+        <Stack.Navigator screenOptions={{cardStyleInterpolator:CardStyleInterpolators.forVerticalIOS}} headerMode={"none"}>
             <Stack.Screen name='Movie Library' component={BottomTab} />
             <Stack.Screen name='Detail Screen' component={DetailScreen} />
+            <Stack.Screen name='Search Screen' component={SearchView} />
         </Stack.Navigator>)
 }
 
