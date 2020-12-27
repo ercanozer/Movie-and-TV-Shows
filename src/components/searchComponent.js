@@ -1,12 +1,12 @@
 import React, { Component, useState, useEffect, useRef } from 'react'
-import { Text, View, FlatList, StyleSheet, Dimensions, Image, ActivityIndicator, Animated, TextInput, LayoutAnimation, UIManager, DrawerLayoutAndroid, Modal } from 'react-native'
+import { Text, View, FlatList, StyleSheet, Dimensions, Image, ActivityIndicator, Animated, TextInput, LayoutAnimation, UIManager, DrawerLayoutAndroid, Modal, YellowBox } from 'react-native'
 import MaterialTabs from 'react-native-material-tabs';
 import { colors, windowHeight } from '../styles';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { TabView, TabBar, SceneMap } from 'react-native-tab-view';
 import ActorComponent from './actorComponent';
-import { fetchSearchQuery } from '../services/requests';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { fetchDiscoverTvOrMovieForFiltering, fetchSearchQuery } from '../services/requests';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import Axios from 'axios';
 import SvgVoteIcon from './icons/VoteIcon';
 import RippleButton from 'react-native-material-ripple'
@@ -22,24 +22,26 @@ if (
 const SortData = [
     { text: 'Release Date', id: 'release_date' },
     { text: 'Popularity', id: 'popularity' },
-    { text: 'Vote Avarage', id: 'vote_avarage' },
+    { text: 'Vote Avarage', id: 'vote_average' },
 ]
 
 const SearchView = (props) => {
     const [numColumn, setNumColumn] = useState(3);
     const [data, setData] = useState({ 0: [], 1: [], 2: [] })
     const [selectedTab, setSelectedTab] = useState(0);
-    const [page, setPage] = useState(1);    
+    const [page, setPage] = useState(1);
     const [query, setQuery] = useState('');
     const [filterState, setFilterState] = useState(false);
     const drawerRef = React.createRef();
     const [sortFilter, setSortFilter] = useState('popularity');
     const [sortType, setSortType] = useState('desc');
     const [filterMode, setFilterMode] = useState(null);
-    const [selectedGenresIds, setSelectedGenresIds] = useState({movie:[],tvShow:[]});
+    const [selectedGenresIds, setSelectedGenresIds] = useState({ movie: [], tvShow: [] });
     const [genresState, setGenresState] = useState("movie");
-    const [selectedDate,setSelectedDate]=useState(2019)
-    const [selectedAvareges,setSelectedAvareges]=useState({min:1,max:9})
+    const [selectedDate, setSelectedDate] = useState(2019)
+    const [selectedAvareges, setSelectedAvareges] = useState({ min: 1, max: 9 })
+    const [filtering, setFiltering] = useState(false)
+    const [filterView, setFilterView] = useState(false)
 
 
 
@@ -54,12 +56,11 @@ const SearchView = (props) => {
     }
 
     const changeText = async (query) => {
-
+        setFiltering(false)
         if (query == '') {
             setData({ 0: [], 1: [], 2: [] })
 
         } else {
-
 
             fetchSearchQuery(query, 1).then(res1 => {
                 fetchSearchQuery(query, 2).then(res2 => {
@@ -88,19 +89,43 @@ const SearchView = (props) => {
     useEffect(() => {
 
 
-        if (query == '') {
+        if (query == '' && !filtering) {
+
             setData({ 0: [], 1: [], 2: [] })
 
         } else {
-            fetchSearchQuery(query, page).then(res => {
-                setData(prevState => ({
-                    ...prevState,
-                    0: prevState[0].concat(res.results.filter((item, index) => item.media_type == 'movie')),
-                    1: prevState[1].concat(res.results.filter((item, index) => item.media_type == 'tv')),
-                    2: prevState[2].concat(res.results.filter((item, index) => item.media_type == 'person'))
-                }))
+            if (filtering) {
+                async function proc() {
+                    try {
+                        var tvDataFromFiltering = await fetchDiscoverTvOrMovieForFiltering('tv', sortFilter, sortType, selectedGenresIds.tvShow, selectedDate, selectedAvareges)
+                        var newData1 = tvDataFromFiltering.map((value) => ({ ...value, media_type: 'tv' }))
+                        var movieDataFromFiltering = await fetchDiscoverTvOrMovieForFiltering('movie', sortFilter, sortType, selectedGenresIds.movie, selectedDate, selectedAvareges)
+                        var newData2 = movieDataFromFiltering.map((value) => ({ ...value, media_type: 'movie' }))
+                        console.log(newData2)
+                        setData(oldData => ({
+                            ...oldData,
+                            0: oldData[0].concat(newData2.filter((item, index) => item.media_type == 'movie')),
+                            1: oldData[1].concat(newData1.filter((item, index) => item.media_type == 'tv')), 2: []
+                        }))
+                        drawerRef.current.closeDrawer()
+                    } catch (error) {
+                        console.log(error)
+                    }
+                }
+                proc()
 
-            })
+            } else {
+
+                fetchSearchQuery(query, page).then(res => {
+                    setData(prevState => ({
+                        ...prevState,
+                        0: prevState[0].concat(res.results.filter((item, index) => item.media_type == 'movie')),
+                        1: prevState[1].concat(res.results.filter((item, index) => item.media_type == 'tv')),
+                        2: prevState[2].concat(res.results.filter((item, index) => item.media_type == 'person'))
+                    }))
+
+                })
+            }
         }
 
 
@@ -119,11 +144,11 @@ const SearchView = (props) => {
 
             case 'setGenresSelectedIdsMovie': {
                 setSelectedGenresIds(oldArray => {
-                    if(selectedGenresIds.movie.includes(newValue)){
-                      return {...oldArray,movie:oldArray.movie.filter(item => item!=newValue)} 
+                    if (selectedGenresIds.movie.includes(newValue)) {
+                        return { ...oldArray, movie: oldArray.movie.filter(item => item != newValue) }
                     }
-                    else{
-                        return {...oldArray,movie:[...oldArray.movie,newValue]}
+                    else {
+                        return { ...oldArray, movie: [...oldArray.movie, newValue] }
                     }
 
                 }
@@ -133,11 +158,11 @@ const SearchView = (props) => {
                 break;
             case 'setGenresSelectedIdsTv': {
                 setSelectedGenresIds(oldArray => {
-                    if(selectedGenresIds.tvShow.includes(newValue)){
-                      return {...oldArray,tvShow:oldArray.tvShow.filter(item => item!=newValue)} 
+                    if (selectedGenresIds.tvShow.includes(newValue)) {
+                        return { ...oldArray, tvShow: oldArray.tvShow.filter(item => item != newValue) }
                     }
-                    else{
-                        return {...oldArray,tvShow:[...oldArray.tvShow,newValue]}
+                    else {
+                        return { ...oldArray, tvShow: [...oldArray.tvShow, newValue] }
                     }
 
                 }
@@ -146,21 +171,21 @@ const SearchView = (props) => {
             }
                 break;
 
-            case 'setYear':{
+            case 'setYear': {
                 setSelectedDate(newValue)
             }
-            break;
+                break;
 
-            case 'setMinAvarege':{
-               
-                if(newValue<=selectedAvareges.max)
-                setSelectedAvareges({...selectedAvareges,min:newValue})
+            case 'setMinAvarege': {
+
+                if (newValue <= selectedAvareges.max)
+                    setSelectedAvareges({ ...selectedAvareges, min: newValue })
                 break;
             }
-            case 'setMaxAvarege':{
-               
-                if(!newValue<selectedAvareges.min)
-                setSelectedAvareges({...selectedAvareges,max:newValue})
+            case 'setMaxAvarege': {
+
+                if (!newValue < selectedAvareges.min)
+                    setSelectedAvareges({ ...selectedAvareges, max: newValue })
                 break;
             }
 
@@ -169,52 +194,68 @@ const SearchView = (props) => {
 
         }
     }
-
+    YellowBox.ignoreWarnings(['VirtualizedLists should never be nested']);
     const changeFilterMode = (newMode) => {
         setFilterMode(newMode)
     }
 
-    const searchWithFilter=()=>{
-        console.log("calisti")
+    const searchWithFilter = async () => {
+        try {
+            setData({ 0: [], 1: [], 2: [] })
+            var tvDataFromFiltering = await fetchDiscoverTvOrMovieForFiltering('tv', sortFilter, sortType, selectedGenresIds.tvShow, selectedDate, selectedAvareges)
+            var newData1 = tvDataFromFiltering.map((value) => ({ ...value, media_type: 'tv' }))
+            var movieDataFromFiltering = await fetchDiscoverTvOrMovieForFiltering('movie', sortFilter, sortType, selectedGenresIds.tvShow, selectedDate, selectedAvareges)
+            var newData2 = movieDataFromFiltering.map((value) => ({ ...value, media_type: 'movie' }))
+
+            setData({ 0: newData2, 1: newData1, 2: [] })
+            setFilterView(!filterView)
+            setFiltering(true)
+
+        } catch (error) {
+            console.log(error)
+        }
+
     }
 
     return (
 
-        <DrawerLayoutAndroid ref={drawerRef} renderNavigationView={() => <SearchFilter
-            sortBySelectedText={sortType}
-            selectedDate={selectedDate}
-            sortBySelectedId={sortFilter}
-            changeProperties={changeProperties}
-            selectedAvareges={selectedAvareges}
-            type={filterMode}
-            setFilterMode={changeFilterMode}
-            contentData={'example'}
-            genresState={genresState}
-            genresSelectedItems={selectedGenresIds}
-            searchWithFilter={searchWithFilter}
-
-        />
-
-        }
-            drawerPosition='right'
-            style={{ elevation: 0}}
-            drawerBackgroundColor={colors.mainBackgroundColor}
-            drawerWidth={Dimensions.get('window').width / 1.35}>
-
-
+        
 
             <Animated.View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: colors.mainBackgroundColor }}>
+                {filterView &&  <View style={{ height: '50%', width: '100%',padding:6, position: 'absolute', bottom: 0, zIndex: 2000, backgroundColor: "#1e5f74", borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
+                    <ScrollView >
+                    <SearchFilter
+                        sortBySelectedText={sortType}
+                        selectedDate={selectedDate}
+                        sortBySelectedId={sortFilter}
+                        changeProperties={changeProperties}
+                        selectedAvareges={selectedAvareges}
+                        type={filterMode}
+                        setFilterMode={changeFilterMode}
+                        contentData={'example'}
+                        genresState={genresState}
+                        closeFilter={()=>setFilterView(!filterView)}
+                        genresSelectedItems={selectedGenresIds}
+                        searchWithFilter={searchWithFilter}
 
-                <ToggleButton onClick={() => drawerRef.current.openDrawer()} />
+                    />
+                </ScrollView>
+
+                </View> }
+              
+
+
                 <Animated.View style={{ backgroundColor: '#222831' }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 6, justifyContent: 'space-around' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 6, justifyContent: 'space-around', paddingRight: 15, paddingLeft: 13 }}>
                         <TouchableOpacity activeOpacity={0.5}>
-                            <FontAwesome5Icon onPress={() => props.navigation.goBack()} style={{ marginLeft: 5 }} color='white' name='chevron-left' size={29} />
+                            <FontAwesome5Icon onPress={() => props.navigation.goBack()} style={{ marginLeft: 2, paddingRight: 7 }} color='white' name='chevron-left' size={29} />
                         </TouchableOpacity>
 
                         <TextInput
-                            onChangeText={changeText}
+                            onChangeText={changeText} 
+                           
                             placeholder='Search...' placeholderTextColor='gray' style={{ width: '80%', fontSize: 17.3, color: 'white', marginLeft: 12 }} />
+                        <ToggleButton onClick={() => setFilterView(!filterView)} />
                         <TouchableOpacity delayPressOut={0} activeOpacity={0.6} onPress={changeLayout}>
                             <FontAwesome5Icon style={{ marginLeft: 0 }} color='white' name={numColumn == 2 ? 'th-list' : 'th'} size={24} />
                         </TouchableOpacity>
@@ -236,7 +277,7 @@ const SearchView = (props) => {
                     </View>
                     <View style={{ backgroundColor: colors.mainBackgroundColor }}>
 
-                        {query != '' ?
+                        {query != '' || filtering ?
                             <FlatList
                                 key={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
                                 style={{ width: '100%', paddingTop: 10 }}
@@ -268,13 +309,14 @@ const SearchView = (props) => {
 
                 </Animated.View>
             </Animated.View>
-        </DrawerLayoutAndroid>
+   
     )
 }
 const ListItem = ({ title, imageURL, navigation, id, media_type }) => {
 
     return (
         <TouchableOpacity
+            delayPressIn={2.50}
             style={{ width: Dimensions.get('window').width / 3.25, margin: 5 }} onPress={() => navigation.navigate('Detail Screen', { params: { id: id, media_type: media_type, imageUrl: imageURL, name: title } })} activeOpacity={0.8}>
 
             <View style={{ margin: 7 }}>
@@ -343,15 +385,11 @@ const ToggleButton = ({ onClick }) => {
         <RippleButton
             onPress={() => onClick()}
             style={{
-                position: 'absolute', alignItems: 'center'
-                , justifyContent: 'center', bottom: 20, right: 10, borderRadius: Dimensions.get('window').width / 6.4 / 2, backgroundColor: '#160f30', shadowColor: '#000',
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 1,
-                shadowRadius: Dimensions.get('window').width / 7 / 2,
-                elevation: 3
-                , width: Dimensions.get('window').width / 6.4, aspectRatio: 1
+                alignItems: 'center'
+                , justifyContent: 'center', borderRadius: Dimensions.get('window').width / 6.4 / 2
+                , width: Dimensions.get('window').width / 6.4, aspectRatio: 1, right: 7
             }}>
-            <FontAwesome5Icon color='red' name='searchengin' size={32} />
+            <FontAwesome5Icon color='red' name='searchengin' size={25} />
         </RippleButton>
     )
 }
@@ -361,10 +399,10 @@ const mainFilterData = [
     'Sort by',
     'Genres',
     'Date',
-    'Vote Avarage'
+    'Vote Average'
 ]
 
-const SearchFilter = ({ height,searchWithFilter, sortByData,selectedDate,selectedAvareges, sortBySelectedId, sortBySelectedText, changeProperties, type, setFilterMode, contentData, genresState, genresSelectedItems }) => {
+const SearchFilter = ({ height, searchWithFilter, sortByData,closeFilter, selectedDate, selectedAvareges, sortBySelectedId, sortBySelectedText, changeProperties, type, setFilterMode, contentData, genresState, genresSelectedItems }) => {
 
     return (
         <View style={{ flex: 1 }}>
@@ -381,18 +419,20 @@ const SearchFilter = ({ height,searchWithFilter, sortByData,selectedDate,selecte
                     sortBySelectedId={sortBySelectedId}
                     selectedDate={selectedDate} />
 
-                    : <View style={{height:"90%",justifyContent:"flex-start"}}>
-                        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 14, paddingLeft: 14, marginTop: 10}}>
+                    : <View style={{ height: "90%", justifyContent: "flex-start" }}>
+                        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 14, paddingLeft: 14, marginTop: 10 }}>
                             <Text style={styles.drawerText}>Discover</Text>
-                          
+                            <View style={{flexDirection:'row',justifyContent:"space-between"}}>
+                               <FontAwesome5Icon onPress={()=>searchWithFilter()} name='check' size={23} color='white' style={{ left: 5, right: 5, padding: 12 }} />
+                               <FontAwesome5Icon name='times' onPress={()=>closeFilter()} size={23} color='white' style={{ left: 5, right: 5, padding: 12 }} />
+                            </View>
+                             
+                           
                         </View>
-                        <View style={{ margin: 0, marginTop: 28 }}>
+                        <View style={{ margin: 0, marginTop: 20 }}>
                             {mainFilterData.map((value, index) => <DrawerItem title={value} changeFilterMode={setFilterMode} key={index} content={contentData[value]} />)}
                         </View>
-                        <TouchableOpacity activeOpacity={1} style={{ borderRadius: 8, borderWidth: 1.5,alignItems:'center', borderColor: 'lightblue', flexDirection:'row',justifyContent:"space-between",padding: 8, alignSelf:'flex-end' ,marginTop:'100%',marginRight:20}}>
-                                <Text onPress={()=>searchWithFilter()} style={{ color: 'lightblue', fontFamily: 'sans-serif-medium', fontSize: 24, textAlignVertical: 'center' }}>Done</Text>
-                                <FontAwesome5Icon name='check' size={23} color='white' style={{left:5,right:5,padding:3}} />
-                            </TouchableOpacity>
+
 
                     </View>
 
@@ -406,9 +446,9 @@ const SearchFilter = ({ height,searchWithFilter, sortByData,selectedDate,selecte
 const DrawerItem = ({ title, content, changeFilterMode }) => {
 
     return (
-        <TouchableOpacity style={{ justifyContent:'space-between',alignItems:"center",borderBottomColor: '#fff',flexDirection:"row", borderBottomWidth: 0.25, marginTop: 15, paddingLeft: 14, paddingBottom: 15 }}  onPress={() => changeFilterMode(title)} activeOpacity={0.8}>
-            <Text style={[styles.drawerText, { fontSize: 19,color:'white' }]}>{title}</Text>
-            <FontAwesome5Icon name='arrow-right' size={22} color='#f2a365' style={{right:7}}/>
+        <TouchableOpacity style={{ justifyContent: 'space-between', alignItems: "center", borderBottomColor: '#fff', flexDirection: "row", borderBottomWidth: 0.25, marginTop: 15, paddingLeft: 14, paddingBottom: 15 }} onPress={() => changeFilterMode(title)} activeOpacity={0.8}>
+            <Text style={[styles.drawerText, { fontSize: 19, color: 'white' }]}>{title}</Text>
+            <FontAwesome5Icon name='arrow-right' size={22} color='#f2a365' style={{ right: 7 }} />
         </TouchableOpacity>
 
     )

@@ -10,7 +10,7 @@ const FilterModal = (props)=>{
 
     return   (
         <View>
-            <View style={{flexDirection:'row',width:'100%',padding:8,justifyContent:'flex-start',alignItems:'center'}}>
+            <View style={{flexDirection:'row',width:'100%',padding:8,justifyContent:'flex-start',alignItems:'center'  }}>
                 <FontAwesome5Icon onPress={()=>props.setFilterMode(null)}  style={{margin:4,marginRight:16}} name='arrow-left' size={24} color='white' />
                 <Text style={{color:'white',fontSize:21,fontFamily:'sans-serif-medium'}}>{props.type}</Text>
             </View>
@@ -29,7 +29,7 @@ const FilterModals = ({ type, sortByState, sortBySelectedId, sortData,sortConten
           
         case 'Date':return<SortByDate selectedDate={selectedDate} onDataItemSelected={changeProperties} />
        
-        case 'Vote Avarage':return<SortByAvarage selectedAvareges={selectedAvareges} changeProperties={changeProperties} onDataItemSelected={changeProperties} />
+        case 'Vote Average':return<SortByAvarage selectedAvareges={selectedAvareges} changeProperties={changeProperties} onDataItemSelected={changeProperties} />
     }
 
     return null
@@ -49,18 +49,18 @@ const RenderItem = ({ dataText, isSelected,changeProperties,item,cpType}) => {
 
 const SortbyFilter = ({ state = 'desc', data, selectedId,changeProperties }) => {
     return (
-        <View style={{ top:10, width: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.mainBackgroundColor, height: '100%', zIndex: 5000 }}>
+        <View style={{ top:10, width: '100%', alignItems: 'center', justifyContent: 'center', height: '100%', zIndex: 5000 }}>
 
-            <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', marginBottom: 3 }}>
 
                 <TouchableOpacity  activeOpacity={0.7} delayPressOut={0} onPress={() => changeProperties('asc','setSortType')}>
-                  <View style={{ elevation: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state == 'desc' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
+                  <View style={{ elevation: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state == 'desc' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
                     <FontAwesome5Icon color='white' name='sort-amount-up' style={{ margin: 4 }} size={21} />
                     <Text style={{ color: 'white' }}>Ascending</Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={0.7} onPress={() => changeProperties('desc','setSortType')} >
-                   <View style={{ elevation: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state != 'desc' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
+                   <View style={{ elevation: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state != 'desc' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
                     <FontAwesome5Icon color='white' name='sort-amount-down' style={{ margin: 4 }} size={21} />
                     <Text style={{ color: 'white' }}>Descending</Text>
                    </View>
@@ -83,18 +83,18 @@ const SortbyFilter = ({ state = 'desc', data, selectedId,changeProperties }) => 
 
 const SortByGenres=({data,selectedIds,state,changeProperties})=>{
     return (
-        <View style={{ top:10, width: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.mainBackgroundColor, height: '90%', zIndex: 5000 }}>
+        <View style={{ top:10, width: '100%', alignItems: 'center', justifyContent: 'center' }}>
 
-            <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', marginBottom: 2 }}>
 
                 <TouchableOpacity  activeOpacity={0.7} delayPressOut={0} onPress={() => changeProperties('movie','setSortGenresType')}>
-                  <View style={{ elevation: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state == 'tvShow' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
+                  <View style={{ elevation: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state == 'tvShow' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
                     
                     <Text style={{ color: 'white' }}>MOVIE</Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={0.7} onPress={() => changeProperties('tvShow','setSortGenresType')} >
-                   <View style={{ elevation: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state != 'tvShow' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
+                   <View style={{ elevation: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state != 'tvShow' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
                    
                     <Text style={{ color: 'white' }}>TV SHOW</Text>
                    </View>
@@ -102,7 +102,7 @@ const SortByGenres=({data,selectedIds,state,changeProperties})=>{
             </View>
             <FlatList
 
-                style={{ width: '100%'}}
+                style={{ width: '100%',height:'100%',paddingBottom:10}}
                 data={state =='tvShow'? genresLists.tvShowGenres:genresLists.movieGenres}
                 renderItem={({ item }) => {
                     console.log(item)
@@ -124,9 +124,10 @@ const SortByDate=({onDataItemSelected,selectedDate})=>{
   
       
     return (
-        <View style={{maxHeight:'90%',marginTop:10}}>
+        <View style={{paddingBottom:10,marginTop:10}}>
            
             <FlatList
+            overScrollMode={'never'}
             data={years}
             renderItem={(item)=><RenderItem dataText={item.item.id} item={item.item} changeProperties={onDataItemSelected} cpType="setYear" isSelected={selectedDate==item.item.id}   />}
             />
@@ -137,8 +138,8 @@ const SortByDate=({onDataItemSelected,selectedDate})=>{
 
 const SortByAvarage=({selectedAvareges,changeProperties})=>{
   return(<View style={{flexDirection:"row",flexWrap:"wrap"}}>
-      <Text style={{flexBasis:Dimensions.get('window').width / 1.35/2,color:"green",fontWeight:"bold",fontSize:20,paddingLeft:10}}>min</Text>
-      <Text style={{flexBasis:Dimensions.get('window').width / 1.35/2,color:"green",fontSize:20,fontWeight:"bold",paddingLeft:10,paddingBottom:10}}>max</Text>
+      <Text style={{flexBasis:'50%',color:"green",fontWeight:"bold",fontSize:20,paddingLeft:10}}>min</Text>
+      <Text style={{flexBasis:'50%',color:"green",fontSize:20,fontWeight:"bold",paddingLeft:10,paddingBottom:10}}>max</Text>
      <FlatList
      key="min"
      style={{flexBasis:Dimensions.get('window').width / 1.35/2,}}

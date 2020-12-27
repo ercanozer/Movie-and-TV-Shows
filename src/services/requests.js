@@ -28,6 +28,24 @@ export const fetchDiscoverTvOrMovie = async (platform, network) => {
     }
   }).then(res=>res.data)
 }
+export const fetchDiscoverTvOrMovieForFiltering = async (platform,sortFilter,sortType,genres,year,avarage) => {
+  var firstReleaseYear=platform =='movie'?'primary_release_year':'first_air_date_year'
+
+  return axios.get('https://api.themoviedb.org/3/discover/' + platform + '?api_key=' + key, {
+    params: {
+      sort_by: `${sortFilter}.${sortType}`,
+      language: 'en',
+      [firstReleaseYear]:year,
+      'vote_average.gte':avarage.min,
+      'vote_average.lte':avarage.max,
+       with_genres:genres.join("||")
+
+      
+    }
+  }).then(res=>{
+   
+    return res.data.results}).catch(err=>console.log(err))
+}
 
 export const fetchSearchQuery=(text,page,source)=>{
   if (cancel !== undefined) cancel();
