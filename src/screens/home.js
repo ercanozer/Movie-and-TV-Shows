@@ -43,6 +43,7 @@ export default class Home extends Component {
     }
 
     render() {
+        console.log(this.props.navigation)
         return (
             <View style={{ backgroundColor: Colors.mainBackgroundColor, flex: 1 }}>
                 <Header />

@@ -41,7 +41,10 @@ const List = ({ listData, navigation,error }) => {
 const ListItem = ({ title, imageURL, navigation,id,media_type }) => {
 
     return (
-        <TouchableOpacity onPress={() => navigation.replace('Detail Screen', { params: { id:id,media_type:media_type != undefined ? media_type : 'tv',imageUrl:imageURL,name:title} })} activeOpacity={0.8}>
+        <TouchableOpacity onPress={() =>{
+          
+                navigation.push('Detail Screen', { params: { id:id,media_type:media_type != undefined ? media_type : 'tv',imageUrl:imageURL,name:title}})
+        }} activeOpacity={0.8}>
 
             <View style={{ margin: 7 }}>
                 <View style={{ width: 100, height: 140, elevation: 10, shadowColor: 'black', shadowOffset: { width: 0, height: 28 }, }}>

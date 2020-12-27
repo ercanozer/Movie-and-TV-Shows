@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Image, Alert, Animated, ActivityIndicator, AsyncStorage } from 'react-native'
+import { Text, View, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Image, Alert, Animated, ActivityIndicator, AsyncStorage, BackHandler } from 'react-native'
 import { colors } from '../styles'
 import { SliderBox } from 'react-native-image-slider-box'
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
@@ -31,11 +31,13 @@ export default class DetailScreen extends Component {
         isFavorite: false,
 
     }
+
+   
     routes = this.props.route.params;
     async componentDidMount() {
-
-
-     
+    
+       
+     console.log("CALISIYORRUMM")
         const keys = await AsyncStorage.getAllKeys();
         if (keys.includes(this.routes.params.id.toString())) this.setState({ isFavorite: true })
         const allData = await fetchDetail(this.routes.params.media_type, this.routes.params.id);
@@ -70,6 +72,8 @@ export default class DetailScreen extends Component {
     }
 
     changeFavorite = (type) => {
+
+    
         if (type == 'add') {
 
             saveToStorage(this.state.allData.id, this.props.route.params.params.name, this.props.route.params.params.media_type, this.props.route.params.params.imageUrl).then(res => {
@@ -83,19 +87,19 @@ export default class DetailScreen extends Component {
 
     }
 
+    backHandler=()=>{
+        this.props.navigation.navigate({root:"Home"});
+    }
+
 
 
     render() {
-        const translateY = this.state.offset.interpolate({
-            inputRange: [0, windowHeight / 1.8],
-            outputRange: [0, 100],
-            extrapolate: "extend"
-        });
+        console.log(this.props)
         return (
             !this.state.loading ? <View onLayout={({ nativeEvent }) => this.setState({ scrollHeight: nativeEvent.layout.height })}
                 style={styles.mainContainer}>
 
-                <BackIcon name={this.props.route.params.params.name} height={this.state.offset} />
+                <BackIcon goBack={this.backHandler} name={this.props.route.params.params.name} height={this.state.offset} />
 
                 <Animated.ScrollView
                     contentContainerStyle={{ top: 50 }}
@@ -202,13 +206,6 @@ class BackIcon extends Component {
 
     render() {
 
-        const opacity = this.props.height.interpolate({
-            inputRange: [0, windowHeight / 2.5, windowHeight / 1.8],
-            outputRange: [0, 0, 1],
-            extrapolate: 'clamp',
-        })
-
-
         return (
             <Animated.View style={{
                 zIndex: 900,
@@ -226,7 +223,7 @@ class BackIcon extends Component {
 
                     height: 50,
                 }}>
-                    <TouchableOpacity >
+                    <TouchableOpacity onPress={this.props.goBack} >
                         <FontAwesome5Icon style={{ padding: 7 }} color='white' name='chevron-left' size={29} />
                     </TouchableOpacity>
                     <Text

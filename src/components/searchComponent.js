@@ -34,8 +34,13 @@ const SearchView = (props) => {
     const [filterState, setFilterState] = useState(false);
     const drawerRef = React.createRef();
     const [sortFilter, setSortFilter] = useState('popularity');
-    const [sortType, setSortType] = useState('desc')
-    const [filterMode, setFilterMode] = useState(null)
+    const [sortType, setSortType] = useState('desc');
+    const [filterMode, setFilterMode] = useState(null);
+    const [selectedGenresIds, setSelectedGenresIds] = useState([]);
+    const [genresState, setGenresState] = useState("or");
+    const [selectedDate,setSelectedDate]=useState(2019)
+    const [selectedAvareges,setSelectedAvareges]=useState("")
+
 
 
 
@@ -79,6 +84,7 @@ const SearchView = (props) => {
 
 
 
+
     useEffect(() => {
 
 
@@ -108,6 +114,30 @@ const SearchView = (props) => {
             case 'setSortFilter': setSortFilter(newValue);
                 break;
 
+            case 'setSortGenresType': setGenresState(newValue);
+                break;
+
+            case 'setGenresSelectedIds': {
+                setSelectedGenresIds(oldArray => {
+                    if(selectedGenresIds.includes(newValue)){
+                      return  oldArray.filter(item => item!=newValue)
+                    }
+                    else{
+                        return [...oldArray,newValue]
+                    }
+
+                }
+                )
+
+            }
+                break;
+
+            case 'setYear':{
+                setSelectedDate(newValue)
+            }
+
+
+
 
         }
     }
@@ -120,16 +150,19 @@ const SearchView = (props) => {
 
         <DrawerLayoutAndroid ref={drawerRef} renderNavigationView={() => <SearchFilter
             sortBySelectedText={sortType}
+            selectedDate={selectedDate}
             sortBySelectedId={sortFilter}
             changeProperties={changeProperties}
             type={filterMode}
             setFilterMode={changeFilterMode}
             contentData={'example'}
+            genresState={genresState}
+            genresSelectedItems={selectedGenresIds}
         />
 
         }
             drawerPosition='right'
-            style={{ elevation: 0 }}
+            style={{ elevation: 0}}
             drawerBackgroundColor={colors.mainBackgroundColor}
             drawerWidth={Dimensions.get('window').width / 1.35}>
 
@@ -296,19 +329,21 @@ const mainFilterData = [
     'Vote Avarage'
 ]
 
-const SearchFilter = ({ height, sortByData, sortBySelectedId, sortBySelectedText,  changeProperties, type, setFilterMode, contentData }) => {
+const SearchFilter = ({ height, sortByData,selectedDate, sortBySelectedId, sortBySelectedText, changeProperties, type, setFilterMode, contentData, genresState, genresSelectedItems }) => {
 
     return (
         <View style={{ flex: 1 }}>
             {
                 type != null ? <FilterModals
-
+                    genresState={genresState}
+                    genresSelectedItems={genresSelectedItems}
                     changeProperties={changeProperties}
                     type={type}
                     setFilterMode={setFilterMode}
                     sortData={SortData}
                     sortByState={sortBySelectedText}
-                    sortBySelectedId={sortBySelectedId} />
+                    sortBySelectedId={sortBySelectedId}
+                    selectedDate={selectedDate} />
 
                     : <View>
                         <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 14, paddingLeft: 14, marginTop: 10 }}>

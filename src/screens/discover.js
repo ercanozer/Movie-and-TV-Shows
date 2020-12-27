@@ -4,10 +4,11 @@ import { colors } from '../styles'
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
 import { ScrollView } from 'react-native-gesture-handler'
 import { fetchGenres } from '../services/requests'
-import {GenresComponent,SearchView} from '../components'
+import { GenresComponent, SearchView } from '../components'
 import {
     AdMobBanner,
 } from 'react-native-admob'
+import { genresLists } from '../utilities/genresData'
 
 
 const MAX_HEIGHT = 200
@@ -25,13 +26,11 @@ export default class Discover extends Component {
         genresTV: []
     }
 
-    async  componentDidMount() {
-        const listMovie = await fetchGenres('movie');
-        const listTv = await fetchGenres('tv');
+    async componentDidMount() {
 
         this.setState({
-            genresMovie: [...listMovie],
-            genresTV: [...listTv]
+            genresMovie: [...genresLists.movieGenres],
+            genresTV: [...genresLists.tvShowGenres]
         })
     }
 
@@ -80,29 +79,29 @@ export default class Discover extends Component {
                     )} >
                     <View style={{ paddingTop: MAX_HEIGHT - 50 }}>
                         <Text style={{ color: 'red', fontWeight: '700', right: 10, fontSize: 14, alignSelf: 'flex-end', marginBottom: 9 }}>Discover by filters</Text>
-                        <View style={{width:null,alignItems:'center',alignSelf:'center'}}>
-                              <AdMobBanner
-                            
-                            adSize="banner"
-                            adUnitID="ca-app-pub-3940256099942544/6300978111"                       
-                            onAdFailedToLoad={error => console.error(error)}
-                        />
+                        <View style={{ width: null, alignItems: 'center', alignSelf: 'center' }}>
+                            <AdMobBanner
+
+                                adSize="banner"
+                                adUnitID="ca-app-pub-3940256099942544/6300978111"
+                                onAdFailedToLoad={error => console.error(error)}
+                            />
                         </View>
                         <Text style={{ color: 'white', alignSelf: "center", fontSize: 23, marginBottom: 20, fontFamily: 'sans-serif-medium' }}>Top Categories</Text>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginBottom: 40 }}>
                             {TopCategories.map((item, index) => <TopItem name={item.name} key={index.toString()} imageURL={item.imageURL} />)}
 
                         </View>
-                       
+
                         <GenresComponent mainTitle='Movie Genres' allData={this.state.genresMovie} />
-                        <View style={{width:null,alignItems:'center',alignSelf:'center'}}>
-                              <AdMobBanner
-                            
-                            adSize="largeBanner"
-                            adUnitID="ca-app-pub-3940256099942544/6300978111"
-                            testDevices={[AdMobBanner.simulatorId]}
-                            onAdFailedToLoad={error => console.error(error)}
-                        />
+                        <View style={{ width: null, alignItems: 'center', alignSelf: 'center' }}>
+                            <AdMobBanner
+
+                                adSize="largeBanner"
+                                adUnitID="ca-app-pub-3940256099942544/6300978111"
+                                testDevices={[AdMobBanner.simulatorId]}
+                                onAdFailedToLoad={error => console.error(error)}
+                            />
                         </View>
                         <GenresComponent mainTitle='TV Show Genres' allData={this.state.genresTV} />
                     </View>
