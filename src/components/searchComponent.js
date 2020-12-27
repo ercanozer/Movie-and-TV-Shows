@@ -29,17 +29,17 @@ const SearchView = (props) => {
     const [numColumn, setNumColumn] = useState(3);
     const [data, setData] = useState({ 0: [], 1: [], 2: [] })
     const [selectedTab, setSelectedTab] = useState(0);
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(1);    
     const [query, setQuery] = useState('');
     const [filterState, setFilterState] = useState(false);
     const drawerRef = React.createRef();
     const [sortFilter, setSortFilter] = useState('popularity');
     const [sortType, setSortType] = useState('desc');
     const [filterMode, setFilterMode] = useState(null);
-    const [selectedGenresIds, setSelectedGenresIds] = useState([]);
-    const [genresState, setGenresState] = useState("or");
+    const [selectedGenresIds, setSelectedGenresIds] = useState({movie:[],tvShow:[]});
+    const [genresState, setGenresState] = useState("movie");
     const [selectedDate,setSelectedDate]=useState(2019)
-    const [selectedAvareges,setSelectedAvareges]=useState("")
+    const [selectedAvareges,setSelectedAvareges]=useState({min:1,max:9})
 
 
 
@@ -117,13 +117,27 @@ const SearchView = (props) => {
             case 'setSortGenresType': setGenresState(newValue);
                 break;
 
-            case 'setGenresSelectedIds': {
+            case 'setGenresSelectedIdsMovie': {
                 setSelectedGenresIds(oldArray => {
-                    if(selectedGenresIds.includes(newValue)){
-                      return  oldArray.filter(item => item!=newValue)
+                    if(selectedGenresIds.movie.includes(newValue)){
+                      return {...oldArray,movie:oldArray.movie.filter(item => item!=newValue)} 
                     }
                     else{
-                        return [...oldArray,newValue]
+                        return {...oldArray,movie:[...oldArray.movie,newValue]}
+                    }
+
+                }
+                )
+
+            }
+                break;
+            case 'setGenresSelectedIdsTv': {
+                setSelectedGenresIds(oldArray => {
+                    if(selectedGenresIds.tvShow.includes(newValue)){
+                      return {...oldArray,tvShow:oldArray.tvShow.filter(item => item!=newValue)} 
+                    }
+                    else{
+                        return {...oldArray,tvShow:[...oldArray.tvShow,newValue]}
                     }
 
                 }
@@ -134,6 +148,20 @@ const SearchView = (props) => {
 
             case 'setYear':{
                 setSelectedDate(newValue)
+            }
+            break;
+
+            case 'setMinAvarege':{
+               
+                if(newValue<=selectedAvareges.max)
+                setSelectedAvareges({...selectedAvareges,min:newValue})
+                break;
+            }
+            case 'setMaxAvarege':{
+               
+                if(!newValue<selectedAvareges.min)
+                setSelectedAvareges({...selectedAvareges,max:newValue})
+                break;
             }
 
 
@@ -146,6 +174,10 @@ const SearchView = (props) => {
         setFilterMode(newMode)
     }
 
+    const searchWithFilter=()=>{
+        console.log("calisti")
+    }
+
     return (
 
         <DrawerLayoutAndroid ref={drawerRef} renderNavigationView={() => <SearchFilter
@@ -153,11 +185,14 @@ const SearchView = (props) => {
             selectedDate={selectedDate}
             sortBySelectedId={sortFilter}
             changeProperties={changeProperties}
+            selectedAvareges={selectedAvareges}
             type={filterMode}
             setFilterMode={changeFilterMode}
             contentData={'example'}
             genresState={genresState}
             genresSelectedItems={selectedGenresIds}
+            searchWithFilter={searchWithFilter}
+
         />
 
         }
@@ -329,7 +364,7 @@ const mainFilterData = [
     'Vote Avarage'
 ]
 
-const SearchFilter = ({ height, sortByData,selectedDate, sortBySelectedId, sortBySelectedText, changeProperties, type, setFilterMode, contentData, genresState, genresSelectedItems }) => {
+const SearchFilter = ({ height,searchWithFilter, sortByData,selectedDate,selectedAvareges, sortBySelectedId, sortBySelectedText, changeProperties, type, setFilterMode, contentData, genresState, genresSelectedItems }) => {
 
     return (
         <View style={{ flex: 1 }}>
@@ -340,21 +375,24 @@ const SearchFilter = ({ height, sortByData,selectedDate, sortBySelectedId, sortB
                     changeProperties={changeProperties}
                     type={type}
                     setFilterMode={setFilterMode}
+                    selectedAvareges={selectedAvareges}
                     sortData={SortData}
                     sortByState={sortBySelectedText}
                     sortBySelectedId={sortBySelectedId}
                     selectedDate={selectedDate} />
 
-                    : <View>
-                        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 14, paddingLeft: 14, marginTop: 10 }}>
+                    : <View style={{height:"90%",justifyContent:"flex-start"}}>
+                        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 14, paddingLeft: 14, marginTop: 10}}>
                             <Text style={styles.drawerText}>Discover</Text>
-                            <TouchableOpacity activeOpacity={0.8} style={{ borderRadius: 8, borderWidth: 1.5, borderColor: 'red', padding: 4 }}>
-                                <Text style={{ color: 'red', fontFamily: 'sans-serif-medium', fontSize: 15, textAlignVertical: 'center' }}>Done</Text>
-                            </TouchableOpacity>
+                          
                         </View>
                         <View style={{ margin: 0, marginTop: 28 }}>
                             {mainFilterData.map((value, index) => <DrawerItem title={value} changeFilterMode={setFilterMode} key={index} content={contentData[value]} />)}
                         </View>
+                        <TouchableOpacity activeOpacity={1} style={{ borderRadius: 8, borderWidth: 1.5,alignItems:'center', borderColor: 'lightblue', flexDirection:'row',justifyContent:"space-between",padding: 8, alignSelf:'flex-end' ,marginTop:'100%',marginRight:20}}>
+                                <Text onPress={()=>searchWithFilter()} style={{ color: 'lightblue', fontFamily: 'sans-serif-medium', fontSize: 24, textAlignVertical: 'center' }}>Done</Text>
+                                <FontAwesome5Icon name='check' size={23} color='white' style={{left:5,right:5,padding:3}} />
+                            </TouchableOpacity>
 
                     </View>
 
@@ -368,9 +406,9 @@ const SearchFilter = ({ height, sortByData,selectedDate, sortBySelectedId, sortB
 const DrawerItem = ({ title, content, changeFilterMode }) => {
 
     return (
-        <TouchableOpacity onPress={() => changeFilterMode(title)} activeOpacity={0.8} style={{ borderBottomColor: '#fff', borderBottomWidth: 0.25, marginTop: 9, paddingLeft: 14, paddingBottom: 11 }}>
-            <Text style={[styles.drawerText, { fontSize: 17 }]}>{title}</Text>
-            <Text style={[styles.drawerText, { fontSize: 14, color: 'gray', fontFamily: 'sans-serif-bold' }]}>example</Text>
+        <TouchableOpacity style={{ justifyContent:'space-between',alignItems:"center",borderBottomColor: '#fff',flexDirection:"row", borderBottomWidth: 0.25, marginTop: 15, paddingLeft: 14, paddingBottom: 15 }}  onPress={() => changeFilterMode(title)} activeOpacity={0.8}>
+            <Text style={[styles.drawerText, { fontSize: 19,color:'white' }]}>{title}</Text>
+            <FontAwesome5Icon name='arrow-right' size={22} color='#f2a365' style={{right:7}}/>
         </TouchableOpacity>
 
     )

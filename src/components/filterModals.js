@@ -19,7 +19,7 @@ const FilterModal = (props)=>{
     )
 }
 
-const FilterModals = ({ type, sortByState, sortBySelectedId, sortData,sortContentData,selectedDate,changeProperties,genresState,genresSelectedItems }) => {
+const FilterModals = ({ type, sortByState, sortBySelectedId, sortData,sortContentData,selectedAvareges,selectedDate,changeProperties,genresState,genresSelectedItems }) => {
 
     switch (type) {
         case 'Sort by':
@@ -29,7 +29,7 @@ const FilterModals = ({ type, sortByState, sortBySelectedId, sortData,sortConten
           
         case 'Date':return<SortByDate selectedDate={selectedDate} onDataItemSelected={changeProperties} />
        
-        case 'Vote Avarage':return<SortByAvarage selectedAvareges={selectedDate} onDataItemSelected={changeProperties} />
+        case 'Vote Avarage':return<SortByAvarage selectedAvareges={selectedAvareges} changeProperties={changeProperties} onDataItemSelected={changeProperties} />
     }
 
     return null
@@ -83,30 +83,30 @@ const SortbyFilter = ({ state = 'desc', data, selectedId,changeProperties }) => 
 
 const SortByGenres=({data,selectedIds,state,changeProperties})=>{
     return (
-        <View style={{ top:10, width: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.mainBackgroundColor, height: '100%', zIndex: 5000 }}>
+        <View style={{ top:10, width: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.mainBackgroundColor, height: '90%', zIndex: 5000 }}>
 
             <View style={{ flexDirection: 'row', marginBottom: 10 }}>
 
-                <TouchableOpacity  activeOpacity={0.7} delayPressOut={0} onPress={() => changeProperties('or','setSortGenresType')}>
-                  <View style={{ elevation: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state == 'and' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
+                <TouchableOpacity  activeOpacity={0.7} delayPressOut={0} onPress={() => changeProperties('movie','setSortGenresType')}>
+                  <View style={{ elevation: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state == 'tvShow' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
                     
-                    <Text style={{ color: 'white' }}>OR</Text>
+                    <Text style={{ color: 'white' }}>MOVIE</Text>
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.7} onPress={() => changeProperties('and','setSortGenresType')} >
-                   <View style={{ elevation: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state != 'and' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
+                <TouchableOpacity activeOpacity={0.7} onPress={() => changeProperties('tvShow','setSortGenresType')} >
+                   <View style={{ elevation: 5, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state != 'tvShow' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
                    
-                    <Text style={{ color: 'white' }}>AND</Text>
+                    <Text style={{ color: 'white' }}>TV SHOW</Text>
                    </View>
                 </TouchableOpacity>
             </View>
             <FlatList
 
-                style={{ width: '100%' }}
-                data={data}
+                style={{ width: '100%'}}
+                data={state =='tvShow'? genresLists.tvShowGenres:genresLists.movieGenres}
                 renderItem={({ item }) => {
                     console.log(item)
-                    return <RenderItem cpType='setGenresSelectedIds' changeProperties={changeProperties}  item={item} key={item.id} dataText={item.name} isSelected={selectedIds.includes(item.id)} />
+                    return <RenderItem cpType={state =='tvShow'?'setGenresSelectedIdsTv':'setGenresSelectedIdsMovie'} changeProperties={changeProperties}  item={item} key={item.id} dataText={item.name} isSelected={selectedIds[state].includes(item.id)} />
                 }
                 }
             />
@@ -135,20 +135,23 @@ const SortByDate=({onDataItemSelected,selectedDate})=>{
 }
 
 
-const SortByAvarage=(selectedAvareges,onDataItemSelected)=>{
+const SortByAvarage=({selectedAvareges,changeProperties})=>{
   return(<View style={{flexDirection:"row",flexWrap:"wrap"}}>
       <Text style={{flexBasis:Dimensions.get('window').width / 1.35/2,color:"green",fontWeight:"bold",fontSize:20,paddingLeft:10}}>min</Text>
       <Text style={{flexBasis:Dimensions.get('window').width / 1.35/2,color:"green",fontSize:20,fontWeight:"bold",paddingLeft:10,paddingBottom:10}}>max</Text>
      <FlatList
+     key="min"
      style={{flexBasis:Dimensions.get('window').width / 1.35/2,}}
             data={voteNumbers}
-            renderItem={(item)=><RenderItem dataText={item.item.id} item={item.item} changeProperties={onDataItemSelected} cpType="setYear" isSelected={selectedAvareges==item.item.id}   />}
+            renderItem={(item)=><RenderItem dataText={item.item.id} item={item.item} changeProperties={changeProperties} cpType="setMinAvarege" isSelected={selectedAvareges.min==item.item.id}   />}
             />
             
      <FlatList
-       style={{flexBasis:Dimensions.get('window').width / 1.35/2,}}
+     key="max"
+
+       style={{flexBasis:Dimensions.get('window').width / 1.35/2,borderColor:'black',borderLeftWidth:1.5,borderRadius:20}}
             data={voteNumbers}
-            renderItem={(item)=><RenderItem dataText={item.item.id} item={item.item} changeProperties={onDataItemSelected} cpType="setYear" isSelected={selectedAvareges==item.item.id}   />}
+            renderItem={(item)=><RenderItem dataText={item.item.id} item={item.item} changeProperties={changeProperties} cpType="setMaxAvarege" isSelected={selectedAvareges.max==item.item.id}   />}
             />
     </View>);
 }
