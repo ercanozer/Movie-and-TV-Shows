@@ -55,7 +55,7 @@ export const fetchSearchQuery=(text,page,source)=>{
       query:text,
       page:page
     }
-  }).then(res=>res.data)
+  }).then(res=>res.data).catch(error=>console.log(error))
 }
 
 export const fetchCast = async (platform,id) =>{

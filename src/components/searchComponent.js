@@ -52,6 +52,7 @@ const SearchView = (props) => {
     }
 
     const refreshData = () => {
+        console.log("calisti")
         setPage(page + 1)
     }
 
@@ -116,15 +117,36 @@ const SearchView = (props) => {
 
             } else {
 
-                fetchSearchQuery(query, page).then(res => {
-                    setData(prevState => ({
-                        ...prevState,
-                        0: prevState[0].concat(res.results.filter((item, index) => item.media_type == 'movie')),
-                        1: prevState[1].concat(res.results.filter((item, index) => item.media_type == 'tv')),
-                        2: prevState[2].concat(res.results.filter((item, index) => item.media_type == 'person'))
-                    }))
 
-                })
+                fetchSearchQuery(query, page).then(res => {
+                    if (res !== undefined) {
+                        setData(prevState => {
+                            var data1 = res.results.filter((item, index) => item.media_type == 'movie')
+                            var data2 = res.results.filter((item, index) => item.media_type == 'tv')
+                            var data3 = res.results.filter((item, index) => item.media_type == 'person')
+                            if (selectedTab == 0 && data1.length < 3) {
+                                console.log("bok")
+                                refreshData()
+                            }
+                            if (selectedTab == 1 && data2.length < 3) {
+                                refreshData()
+                            }
+                            if (selectedTab == 2 && data3.length < 3) {
+                                refreshData()
+                            }
+                            return {
+                                ...prevState,
+                                0: prevState[0].concat(data1),
+                                1: prevState[1].concat(data2),
+                                2: prevState[2].concat(data3)
+                            }
+                        }
+
+                        )
+                    }
+
+                }
+                )
             }
         }
 
@@ -219,100 +241,103 @@ const SearchView = (props) => {
 
     return (
 
-        
 
-            <Animated.View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: colors.mainBackgroundColor }}>
-                {filterView &&  <View style={{ height: '50%', width: '100%',padding:6, position: 'absolute', bottom: 0, zIndex: 2000, backgroundColor: "#1e5f74", borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
+
+        <Animated.View style={{ flex: 1, width: '100%', backgroundColor: colors.mainBackgroundColor }}>
+            {filterView && <View style={{ height: '100%', width: '100%', position: 'absolute', bottom: 0, zIndex: 2000, backgroundColor: "rgba(35, 20, 20, 0.76)", }}>
+                <View style={{ height: '45%', width: '100%', position: 'absolute', bottom: 0, backgroundColor: "#1e5f74", padding: 6, borderTopLeftRadius: 20, borderTopRightRadius: 20, elevation: 4 }} >
+
                     <ScrollView >
-                    <SearchFilter
-                        sortBySelectedText={sortType}
-                        selectedDate={selectedDate}
-                        sortBySelectedId={sortFilter}
-                        changeProperties={changeProperties}
-                        selectedAvareges={selectedAvareges}
-                        type={filterMode}
-                        setFilterMode={changeFilterMode}
-                        contentData={'example'}
-                        genresState={genresState}
-                        closeFilter={()=>setFilterView(!filterView)}
-                        genresSelectedItems={selectedGenresIds}
-                        searchWithFilter={searchWithFilter}
+                        <SearchFilter
+                            sortBySelectedText={sortType}
+                            selectedDate={selectedDate}
+                            sortBySelectedId={sortFilter}
+                            changeProperties={changeProperties}
+                            selectedAvareges={selectedAvareges}
+                            type={filterMode}
+                            setFilterMode={changeFilterMode}
+                            contentData={'example'}
+                            genresState={genresState}
+                            closeFilter={() => setFilterView(!filterView)}
+                            genresSelectedItems={selectedGenresIds}
+                            searchWithFilter={searchWithFilter}
 
-                    />
-                </ScrollView>
-
-                </View> }
-              
-
-
-                <Animated.View style={{ backgroundColor: '#222831' }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 6, justifyContent: 'space-around', paddingRight: 15, paddingLeft: 13 }}>
-                        <TouchableOpacity activeOpacity={0.5}>
-                            <FontAwesome5Icon onPress={() => props.navigation.goBack()} style={{ marginLeft: 2, paddingRight: 7 }} color='white' name='chevron-left' size={29} />
-                        </TouchableOpacity>
-
-                        <TextInput
-                            onChangeText={changeText} 
-                           
-                            placeholder='Search...' placeholderTextColor='gray' style={{ width: '80%', fontSize: 17.3, color: 'white', marginLeft: 12 }} />
-                        <ToggleButton onClick={() => setFilterView(!filterView)} />
-                        <TouchableOpacity delayPressOut={0} activeOpacity={0.6} onPress={changeLayout}>
-                            <FontAwesome5Icon style={{ marginLeft: 0 }} color='white' name={numColumn == 2 ? 'th-list' : 'th'} size={24} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{ width: '100%', alignSelf: 'center' }}>
-
-                        <MaterialTabs
-                            textStyle={{ fontFamily: 'sans-serif-medium', fontSize: 13 }}
-                            items={['Movies', 'TV Shows', 'People']}
-                            selectedIndex={selectedTab}
-                            activeTextStyle={{ color: 'red', }}
-                            onChange={setSelectedTab}
-                            barColor='#222831'
-                            indicatorColor="red"
-                            activeTextColor="white"
                         />
+                    </ScrollView>
+                </View>
+
+            </View>}
 
 
-                    </View>
-                    <View style={{ backgroundColor: colors.mainBackgroundColor }}>
 
-                        {query != '' || filtering ?
-                            <FlatList
-                                key={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
-                                style={{ width: '100%', paddingTop: 10 }}
-                                keyExtractor={(item, index) => index}
-                                data={data[selectedTab]}
-                                numColumns={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
-                                contentContainerStyle={{ alignItems: 'flex-start' }}
-                                onEndReached={refreshData}
-                                onEndReachedThreshold={0.8}
-                                ListFooterComponent={<ActivityIndicator color='white' size={40} />}
-                                ListFooterComponentStyle={{ alignSelf: 'center', margin: 10 }}
-                                renderItem={({ item, index }) => item.media_type == 'person' ? <CastComp key={index} path={item.profile_path} name={item.name} characterName={item.character} /> : numColumn != 2 ? <ListItem
-                                    id={item.id}
+            <Animated.View style={{ backgroundColor: '#222831' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', padding: 6, justifyContent: 'space-around', paddingRight: 15, paddingLeft: 13 }}>
+                    <TouchableOpacity activeOpacity={0.5}>
+                        <FontAwesome5Icon onPress={() => props.navigation.goBack()} style={{ marginLeft: 2, paddingRight: 7 }} color='white' name='chevron-left' size={29} />
+                    </TouchableOpacity>
+
+                    <TextInput
+                        onChangeText={changeText}
+
+                        placeholder='Search...' placeholderTextColor='gray' style={{ width: '80%', fontSize: 17.3, color: 'white', marginLeft: 12 }} />
+                    <ToggleButton onClick={() => setFilterView(!filterView)} />
+                    <TouchableOpacity delayPressOut={0} activeOpacity={0.6} onPress={changeLayout}>
+                        <FontAwesome5Icon style={{ marginLeft: 0 }} color='white' name={numColumn == 2 ? 'th-list' : 'th'} size={24} />
+                    </TouchableOpacity>
+                </View>
+                <View style={{ width: '100%', alignSelf: 'center' }}>
+
+                    <MaterialTabs
+                        textStyle={{ fontFamily: 'sans-serif-medium', fontSize: 13 }}
+                        items={['Movies', 'TV Shows', 'People']}
+                        selectedIndex={selectedTab}
+                        activeTextStyle={{ color: 'red', }}
+                        onChange={setSelectedTab}
+                        barColor='#222831'
+                        indicatorColor="red"
+                        activeTextColor="white"
+                    />
+
+
+                </View>
+                <View style={{ backgroundColor: colors.mainBackgroundColor }}>
+
+                    {query != '' || filtering ?
+                        <FlatList
+                            key={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
+                            style={{ width: '100%', paddingTop: 10, marginBottom: 250 }}
+                            keyExtractor={(item, index) => index}
+                            data={data[selectedTab]}
+                            numColumns={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
+                            contentContainerStyle={{ alignItems: 'flex-start' }}
+                            onEndReached={refreshData}
+                            onEndReachedThreshold={0.1}
+                            ListFooterComponent={<ActivityIndicator color='white' size={40} />}
+                            ListFooterComponentStyle={{ alignSelf: 'center', margin: 10 }}
+                            renderItem={({ item, index }) => item.media_type == 'person' ? <CastComp key={index} path={item.profile_path} name={item.name} characterName={item.character} /> : numColumn != 2 ? <ListItem
+                                id={item.id}
+                                media_type={item.media_type}
+                                navigation={props.navigation}
+                                key={index}
+                                title={item.media_type == 'movie' ? item.original_title : item.name}
+                                imageURL={item.poster_path} /> : <SpreadItem id={item.id}
                                     media_type={item.media_type}
                                     navigation={props.navigation}
                                     key={index}
                                     title={item.media_type == 'movie' ? item.original_title : item.name}
-                                    imageURL={item.poster_path} /> : <SpreadItem id={item.id}
-                                        media_type={item.media_type}
-                                        navigation={props.navigation}
-                                        key={index}
-                                        title={item.media_type == 'movie' ? item.original_title : item.name}
-                                        imageURL={item.poster_path}
-                                        voteAvarage={item.vote_average}
-                                        relaseDate={item.media_type == 'movie' ? item.release_date : item.first_air_date} />} /> : <View style={{ alignItems: 'center' }}><Text style={{ color: 'gray', fontSize: 30, alignSelf: 'center', marginTop: 20, marginBottom: 5, fontFamily: 'sans-serif-medium' }}>Search Something</Text><FontAwesome5Icon size={35} color='gray' name='search' /></View>}
+                                    imageURL={item.poster_path}
+                                    voteAvarage={item.vote_average}
+                                    relaseDate={item.media_type == 'movie' ? item.release_date : item.first_air_date} />} /> : <View style={{ alignItems: 'center' }}><Text style={{ color: 'gray', fontSize: 30, alignSelf: 'center', marginTop: 20, marginBottom: 5, fontFamily: 'sans-serif-medium' }}>Search Something</Text><FontAwesome5Icon size={35} color='gray' name='search' /></View>}
 
 
-                    </View>
+                </View>
 
-                </Animated.View>
             </Animated.View>
-   
+        </Animated.View>
+
     )
 }
-const ListItem = ({ title, imageURL, navigation, id, media_type }) => {
+const ListItem = React.memo( ({ title, imageURL, navigation, id, media_type }) => {
 
     return (
         <TouchableOpacity
@@ -329,7 +354,7 @@ const ListItem = ({ title, imageURL, navigation, id, media_type }) => {
             </View>
         </TouchableOpacity>
     )
-}
+})
 
 const SpreadItem = ({ title, relaseDate, voteAvarage, id, imageURL, navigation, media_type }) => {
 
@@ -402,7 +427,7 @@ const mainFilterData = [
     'Vote Average'
 ]
 
-const SearchFilter = ({ height, searchWithFilter, sortByData,closeFilter, selectedDate, selectedAvareges, sortBySelectedId, sortBySelectedText, changeProperties, type, setFilterMode, contentData, genresState, genresSelectedItems }) => {
+const SearchFilter = ({ height, searchWithFilter, sortByData, closeFilter, selectedDate, selectedAvareges, sortBySelectedId, sortBySelectedText, changeProperties, type, setFilterMode, contentData, genresState, genresSelectedItems }) => {
 
     return (
         <View style={{ flex: 1 }}>
@@ -422,12 +447,12 @@ const SearchFilter = ({ height, searchWithFilter, sortByData,closeFilter, select
                     : <View style={{ height: "90%", justifyContent: "flex-start" }}>
                         <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', paddingRight: 14, paddingLeft: 14, marginTop: 10 }}>
                             <Text style={styles.drawerText}>Discover</Text>
-                            <View style={{flexDirection:'row',justifyContent:"space-between"}}>
-                               <FontAwesome5Icon onPress={()=>searchWithFilter()} name='check' size={23} color='white' style={{ left: 5, right: 5, padding: 12 }} />
-                               <FontAwesome5Icon name='times' onPress={()=>closeFilter()} size={23} color='white' style={{ left: 5, right: 5, padding: 12 }} />
+                            <View style={{ flexDirection: 'row', justifyContent: "space-between" }}>
+                                <FontAwesome5Icon onPress={() => searchWithFilter()} name='check' size={23} color='white' style={{ left: 5, right: 5, padding: 12 }} />
+                                <FontAwesome5Icon name='times' onPress={() => closeFilter()} size={23} color='white' style={{ left: 5, right: 5, padding: 12 }} />
                             </View>
-                             
-                           
+
+
                         </View>
                         <View style={{ margin: 0, marginTop: 20 }}>
                             {mainFilterData.map((value, index) => <DrawerItem title={value} changeFilterMode={setFilterMode} key={index} content={contentData[value]} />)}
