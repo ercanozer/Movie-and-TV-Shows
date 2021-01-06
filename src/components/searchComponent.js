@@ -12,6 +12,11 @@ import SvgVoteIcon from './icons/VoteIcon';
 import RippleButton from 'react-native-material-ripple'
 import { WheelePicker, FilterModals } from '.';
 import MaterialRipple from 'react-native-material-ripple'
+import { AdMobInterstitial } from 'react-native-admob';
+import FastImage from 'react-native-fast-image';
+import { Values } from '../utilities/detailInfoTransporter';
+
+
 if (
     Platform.OS === "android" &&
     UIManager.setLayoutAnimationEnabledExperimental
@@ -26,6 +31,8 @@ const SortData = [
 ]
 
 const SearchView = (props) => {
+   
+    
     const [numColumn, setNumColumn] = useState(3);
     const [data, setData] = useState({ 0: [], 1: [], 2: [] })
     const [selectedTab, setSelectedTab] = useState(0);
@@ -36,13 +43,34 @@ const SearchView = (props) => {
     const [sortFilter, setSortFilter] = useState('popularity');
     const [sortType, setSortType] = useState('desc');
     const [filterMode, setFilterMode] = useState(null);
-    const [selectedGenresIds, setSelectedGenresIds] = useState({ movie: [], tvShow: [] });
     const [genresState, setGenresState] = useState("movie");
     const [selectedDate, setSelectedDate] = useState(2019)
     const [selectedAvareges, setSelectedAvareges] = useState({ min: 1, max: 9 })
     const [filtering, setFiltering] = useState(false)
     const [filterView, setFilterView] = useState(false)
+    const [resultsState, setResultsState] = useState(false)
+const [selectedGenresIds, setSelectedGenresIds] = useState({ movie: [], tvShow: [] });
+    useEffect(()=>{if(typeof props.route.params != 'undefined'){
+        changeProperties(props.route.params.selectedGenresId,props.route.params.type)
+       setSelectedTab(props.route.params.selectedTab)
+       
+  
+        
+    }else{   
+     
+    }
+},[])
 
+useEffect(()=>{
+    if(typeof props.route.params != 'undefined'){
+     
+        searchWithFilter()
+         
+     }else{   
+      
+     }
+},[selectedGenresIds])
+    
 
 
 
@@ -52,7 +80,7 @@ const SearchView = (props) => {
     }
 
     const refreshData = () => {
-        console.log("calisti")
+  
         setPage(page + 1)
     }
 
@@ -68,7 +96,6 @@ const SearchView = (props) => {
                     var array0 = (res1.results.filter((item, index) => item.media_type == 'movie')).push(res2.results.filter((item, index) => item.media_type == 'movie'));
 
                     setData(prevState => ({
-                        ...prevState,
                         0: (res1.results.filter((item, index) => item.media_type == 'movie')).concat(res2.results.filter((item, index) => item.media_type == 'movie')),
                         1: (res1.results.filter((item, index) => item.media_type == 'tv')).concat(res2.results.filter((item, index) => item.media_type == 'tv')),
                         2: (res1.results.filter((item, index) => item.media_type == 'person')).concat(res2.results.filter((item, index) => item.media_type == 'person'))
@@ -102,7 +129,7 @@ const SearchView = (props) => {
                         var newData1 = tvDataFromFiltering.map((value) => ({ ...value, media_type: 'tv' }))
                         var movieDataFromFiltering = await fetchDiscoverTvOrMovieForFiltering('movie', sortFilter, sortType, selectedGenresIds.movie, selectedDate, selectedAvareges)
                         var newData2 = movieDataFromFiltering.map((value) => ({ ...value, media_type: 'movie' }))
-                        console.log(newData2)
+                      
                         setData(oldData => ({
                             ...oldData,
                             0: oldData[0].concat(newData2.filter((item, index) => item.media_type == 'movie')),
@@ -110,7 +137,7 @@ const SearchView = (props) => {
                         }))
                         drawerRef.current.closeDrawer()
                     } catch (error) {
-                        console.log(error)
+              
                     }
                 }
                 proc()
@@ -124,15 +151,20 @@ const SearchView = (props) => {
                             var data1 = res.results.filter((item, index) => item.media_type == 'movie')
                             var data2 = res.results.filter((item, index) => item.media_type == 'tv')
                             var data3 = res.results.filter((item, index) => item.media_type == 'person')
-                            if (selectedTab == 0 && data1.length < 3) {
-                                console.log("bok")
+                        
+                            if (selectedTab == 0 && data1.length < 3&& res.total_pages>page) {
+                             
                                 refreshData()
                             }
-                            if (selectedTab == 1 && data2.length < 3) {
+                           else if (selectedTab == 1 && data2.length < 3&& res.total_pages>page) {
                                 refreshData()
                             }
-                            if (selectedTab == 2 && data3.length < 3) {
+                            else if (selectedTab == 2 && data3.length < 3 && res.total_pages>page) {
                                 refreshData()
+                            }
+                            else{
+                                setResultsState(true)
+
                             }
                             return {
                                 ...prevState,
@@ -216,7 +248,7 @@ const SearchView = (props) => {
 
         }
     }
-    YellowBox.ignoreWarnings(['VirtualizedLists should never be nested']);
+   
     const changeFilterMode = (newMode) => {
         setFilterMode(newMode)
     }
@@ -224,17 +256,18 @@ const SearchView = (props) => {
     const searchWithFilter = async () => {
         try {
             setData({ 0: [], 1: [], 2: [] })
+            setQuery('')
             var tvDataFromFiltering = await fetchDiscoverTvOrMovieForFiltering('tv', sortFilter, sortType, selectedGenresIds.tvShow, selectedDate, selectedAvareges)
             var newData1 = tvDataFromFiltering.map((value) => ({ ...value, media_type: 'tv' }))
-            var movieDataFromFiltering = await fetchDiscoverTvOrMovieForFiltering('movie', sortFilter, sortType, selectedGenresIds.tvShow, selectedDate, selectedAvareges)
+            var movieDataFromFiltering = await fetchDiscoverTvOrMovieForFiltering('movie', sortFilter, sortType, selectedGenresIds.movie, selectedDate, selectedAvareges)
             var newData2 = movieDataFromFiltering.map((value) => ({ ...value, media_type: 'movie' }))
 
             setData({ 0: newData2, 1: newData1, 2: [] })
-            setFilterView(!filterView)
+            setFilterView(false)
             setFiltering(true)
 
         } catch (error) {
-            console.log(error)
+         
         }
 
     }
@@ -243,7 +276,7 @@ const SearchView = (props) => {
 
 
 
-        <Animated.View style={{ flex: 1, width: '100%', backgroundColor: colors.mainBackgroundColor }}>
+        <View style={{ flex: 1, width: '100%', backgroundColor: colors.mainBackgroundColor }}>
             {filterView && <View style={{ height: '100%', width: '100%', position: 'absolute', bottom: 0, zIndex: 2000, backgroundColor: "rgba(35, 20, 20, 0.76)", }}>
                 <View style={{ height: '45%', width: '100%', position: 'absolute', bottom: 0, backgroundColor: "#1e5f74", padding: 6, borderTopLeftRadius: 20, borderTopRightRadius: 20, elevation: 4 }} >
 
@@ -270,16 +303,17 @@ const SearchView = (props) => {
 
 
 
-            <Animated.View style={{ backgroundColor: '#222831' }}>
+            <View style={{ backgroundColor: '#222831' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', padding: 6, justifyContent: 'space-around', paddingRight: 15, paddingLeft: 13 }}>
                     <TouchableOpacity activeOpacity={0.5}>
-                        <FontAwesome5Icon onPress={() => props.navigation.goBack()} style={{ marginLeft: 2, paddingRight: 7 }} color='white' name='chevron-left' size={29} />
+                        <FontAwesome5Icon onPress={() => props.navigation.goBack()} style={{ marginLeft: 1, paddingRight: 7 }} color='white' name='chevron-left' size={29} />
                     </TouchableOpacity>
 
                     <TextInput
                         onChangeText={changeText}
-
-                        placeholder='Search...' placeholderTextColor='gray' style={{ width: '80%', fontSize: 17.3, color: 'white', marginLeft: 12 }} />
+                        value={query}
+                                          
+                        placeholder='Search...' placeholderTextColor='gray' style={{ width: '75%', fontSize: 17.3, color: 'white', marginLeft: 12 ,zIndex:100}} />
                     <ToggleButton onClick={() => setFilterView(!filterView)} />
                     <TouchableOpacity delayPressOut={0} activeOpacity={0.6} onPress={changeLayout}>
                         <FontAwesome5Icon style={{ marginLeft: 0 }} color='white' name={numColumn == 2 ? 'th-list' : 'th'} size={24} />
@@ -291,10 +325,11 @@ const SearchView = (props) => {
                         textStyle={{ fontFamily: 'sans-serif-medium', fontSize: 13 }}
                         items={['Movies', 'TV Shows', 'People']}
                         selectedIndex={selectedTab}
-                        activeTextStyle={{ color: 'red', }}
+                        activeTextStyle={{ color: 'lightblue', }}
                         onChange={setSelectedTab}
                         barColor='#222831'
-                        indicatorColor="red"
+                        inactiveTextColor={'gray'}
+                        indicatorColor="lightblue"
                         activeTextColor="white"
                     />
 
@@ -305,15 +340,16 @@ const SearchView = (props) => {
                     {query != '' || filtering ?
                         <FlatList
                             key={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
-                            style={{ width: '100%', paddingTop: 10, marginBottom: 250 }}
+                            style={{ width: '100%', paddingTop: 10 }}
+                        
                             keyExtractor={(item, index) => index}
                             data={data[selectedTab]}
                             numColumns={selectedTab == 2 ? 1 : numColumn != 2 ? 3 : 1}
-                            contentContainerStyle={{ alignItems: 'flex-start' }}
+                            contentContainerStyle={{ alignItems: 'flex-start',paddingBottom:250 }}
                             onEndReached={refreshData}
                             onEndReachedThreshold={0.1}
-                            ListFooterComponent={<ActivityIndicator color='white' size={40} />}
-                            ListFooterComponentStyle={{ alignSelf: 'center', margin: 10 }}
+                            ListFooterComponent={!resultsState ? <ActivityIndicator color='white' size={40} />:null}
+                            ListFooterComponentStyle={{ alignSelf: 'center', margin: 10}}
                             renderItem={({ item, index }) => item.media_type == 'person' ? <CastComp key={index} path={item.profile_path} name={item.name} characterName={item.character} /> : numColumn != 2 ? <ListItem
                                 id={item.id}
                                 media_type={item.media_type}
@@ -332,8 +368,8 @@ const SearchView = (props) => {
 
                 </View>
 
-            </Animated.View>
-        </Animated.View>
+            </View>
+        </View>
 
     )
 }
@@ -342,12 +378,27 @@ const ListItem = React.memo( ({ title, imageURL, navigation, id, media_type }) =
     return (
         <TouchableOpacity
             delayPressIn={2.50}
-            style={{ width: Dimensions.get('window').width / 3.25, margin: 5 }} onPress={() => navigation.navigate('Detail Screen', { params: { id: id, media_type: media_type, imageUrl: imageURL, name: title } })} activeOpacity={0.8}>
+            style={{ width: Dimensions.get('window').width / 3.25, margin: 5 }} onPress={() => {
+                AdMobInterstitial.requestAd().then(() => AdMobInterstitial.showAd());  
+                Values.params={ id, media_type: media_type != undefined ? media_type : 'movie', imageUrl: imageURL, name: title }
+           
+                AdMobInterstitial.addEventListener("adClosed", () => {
+    
+                      navigation.navigate('Detail Screen')
+               
+    
+                });
+    
+                AdMobInterstitial.addEventListener("adFailedToLoad", () => {
+                    navigation.navigate('Detail Screen')
+                });
+    
+                }} activeOpacity={0.8} >
 
             <View style={{ margin: 7 }}>
                 <View style={{ elevation: 10 }}>
-                    {imageURL != null ? <Image fadeDuration={0} resizeMode='cover' style={{ width: '100%', aspectRatio: 0.67, borderRadius: 10 }}
-                        source={{ uri: 'https://image.tmdb.org/t/p/original' + imageURL }} /> : <FontAwesome5Icon style={{ textAlign: 'center', textAlignVertical: 'center', width: '100%', aspectRatio: 0.67, borderRadius: 10 }} name='camera' color='gray' size={40} />}
+                    {imageURL != null ? <FastImage fadeDuration={0} resizeMode='cover' style={{ width: '100%', aspectRatio: 0.67, borderRadius: 10 }}
+                        source={{ uri: 'http://image.tmdb.org/t/p/original' + imageURL }} /> : <FontAwesome5Icon style={{ textAlign: 'center', textAlignVertical: 'center', width: '100%', aspectRatio: 0.67, borderRadius: 10 }} name='camera' color='gray' size={40} />}
 
                 </View>
                 <Text numberOfLines={2} style={{ color: 'white', maxWidth: Dimensions.get('window').width / 3.25, padding: 2, fontSize: 13 }}>{title}</Text>
@@ -359,12 +410,21 @@ const ListItem = React.memo( ({ title, imageURL, navigation, id, media_type }) =
 const SpreadItem = ({ title, relaseDate, voteAvarage, id, imageURL, navigation, media_type }) => {
 
     return (
-        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate('Detail Screen', { params: { id: id, media_type: media_type, imageUrl: imageURL, name: title } })} >
+        <TouchableOpacity activeOpacity={0.7} onPress={() =>{
+            Values.params={ id, media_type: media_type != undefined ? media_type : 'movie', imageUrl: imageURL, name: title }
+           
+    
+                      navigation.navigate('Detail Screen')
+               
+    
+             
+    
+        } } >
 
             <View style={{ flexDirection: 'row', justifyContent: "flex-start", width: Dimensions.get('window').width, margin: 10 }}>
                 <View style={{ elevation: 10, width: Dimensions.get('window').width / 3.32 }}>
                     {imageURL != null ? <Image fadeDuration={0} resizeMode='cover' style={{ width: '100%', aspectRatio: 0.60, borderRadius: 10 }}
-                        source={{ uri: 'https://image.tmdb.org/t/p/original' + imageURL }} /> : <FontAwesome5Icon style={{ textAlign: 'center', textAlignVertical: 'center', width: '100%', aspectRatio: 0.67, borderRadius: 10 }} name='camera' color='gray' size={40} />}
+                        source={{ uri: 'http://image.tmdb.org/t/p/original' + imageURL }} /> : <FontAwesome5Icon style={{ textAlign: 'center', textAlignVertical: 'center', width: '100%', aspectRatio: 0.67, borderRadius: 10 }} name='camera' color='gray' size={40} />}
                 </View>
                 <View style={{ marginLeft: 14, flex: 1 }} >
                     <Text style={{ color: 'white', padding: 2, fontSize: 18, fontFamily: 'sans-serif-medium', paddingRight: 14 }}>{title}</Text>
@@ -399,7 +459,7 @@ const ImageItem = ({ profilePath }) => {
     return (
 
         <View style={styles.imageContainer}>
-            <Image resizeMethod='auto' resizeMode='cover' style={{ width: '100%', height: '100%' }} source={{ uri: profilePath != null ? 'https://image.tmdb.org/t/p/original' + profilePath : 'https://cdn.pixabay.com/photo/2018/04/18/18/56/user-3331256_1280.png' }} />
+            <FastImage resizeMethod='auto' resizeMode='cover' style={{ width: '100%', height: '100%' }} source={{ uri: profilePath != null ? 'http://image.tmdb.org/t/p/original' + profilePath : 'http://cdn.pixabay.com/photo/2018/04/18/18/56/user-3331256_1280.png',priority:'high' }} />
         </View>
     )
 }
@@ -414,7 +474,7 @@ const ToggleButton = ({ onClick }) => {
                 , justifyContent: 'center', borderRadius: Dimensions.get('window').width / 6.4 / 2
                 , width: Dimensions.get('window').width / 6.4, aspectRatio: 1, right: 7
             }}>
-            <FontAwesome5Icon color='red' name='searchengin' size={25} />
+            <FontAwesome5Icon color='red' name='filter' size={23} />
         </RippleButton>
     )
 }

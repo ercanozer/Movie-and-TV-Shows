@@ -10,7 +10,6 @@ import React, { Component } from 'react';
 import StackNavigation from './src/navigation/stackNavigation'
 import {NavigationContainer} from '@react-navigation/native'
 import {
-  SafeAreaView,
   StyleSheet,
   ScrollView,
   View,
@@ -25,10 +24,9 @@ import {
   DebugInstructions,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
-
+import { AdMobInterstitial } from 'react-native-admob';
+AdMobInterstitial.setAdUnitID('ca-app-pub-2852605001804865/7333273924');
 class App extends Component {
-
-
   render() {
     return (
       <NavigationContainer>

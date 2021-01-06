@@ -15,13 +15,5 @@ export class Header extends Component {
     }   
 }
 
-const Search=()=>{
-
-    return (
-        <TouchableOpacity style={{width:40,aspectRatio:1,justifyContent:'center',alignItems:'center'}} >
-             <FontAwesome5Icon name='sistrix' color='white'size={28} />
-        </TouchableOpacity>
-    )
-}
 
 export default Header

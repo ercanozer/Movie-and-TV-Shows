@@ -1,8 +1,9 @@
 import React from 'react'
 import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from 'react-native'
-
+import FastImage from 'react-native-fast-image';
+import Snackbar from 'react-native-snackbar';
 const ActorComponent = ({ castData }) => {
-    console.log(castData.cast)
+   
     return (
         <View style={{ margin:10,padding:5 }}>
             {castData.cast.map((item, index) => {
@@ -16,7 +17,12 @@ const ActorComponent = ({ castData }) => {
 const CastComp = ({ path, name, characterName }) => {
 
     return (
-        <TouchableOpacity style={{ flexDirection: 'row', width: '100%', justifyContent: 'flex-start',alignSelf:'center',marginBottom:30, }}>
+        <TouchableOpacity onPress={()=>{Snackbar.show({
+            text: 'Coming Soon',
+            textColor:'black',
+            backgroundColor:'orange',
+            duration: Snackbar.LENGTH_SHORT,
+          });}} style={{ flexDirection: 'row', width: '100%', justifyContent: 'flex-start',alignSelf:'center',marginBottom:30, }}>
             <ImageItem profilePath={path} />
             <View style={{ flexDirection: 'column',marginLeft:16,alignItems:'flex-start',justifyContent:'center' }}>
                 <Text style={styles.nameText}>{name}</Text>
@@ -27,11 +33,11 @@ const CastComp = ({ path, name, characterName }) => {
 }
 
 const ImageItem = ({ profilePath }) => {
-console.log(profilePath)
+
     return (
 
         <View style={styles.imageContainer}>
-            <Image resizeMethod='auto' resizeMode='cover' style={{ width: '100%', height: '100%'}} source={{ uri: profilePath !=null ?'https://image.tmdb.org/t/p/original' + profilePath : 'https://cdn.pixabay.com/photo/2018/04/18/18/56/user-3331256_1280.png'}} />
+            <FastImage resizeMethod='auto' resizeMode='cover' style={{ width: '100%', height: '100%'}} source={{ uri: profilePath !=null ?'http://image.tmdb.org/t/p/original' + profilePath : 'http://cdn.pixabay.com/photo/2018/04/18/18/56/user-3331256_1280.png'}} />
         </View>
     )
 }

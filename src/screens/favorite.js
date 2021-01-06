@@ -7,6 +7,8 @@ import { fetchSearchQuery } from '../services/requests';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { NativeAds } from '../components';
+import FastImage from 'react-native-fast-image';
+import { Values } from '../utilities/detailInfoTransporter';
 const Favorite = (props) => {
     const [numColumn, setNumColumn] = useState(3);
     const [data, setData] = useState({ 0: [], 1: [], 2: [] })
@@ -79,7 +81,7 @@ const Favorite = (props) => {
                                 media_type={item.media_type}
                                 navigation={props.navigation}
                                 key={index}
-                                title={item.media_type == 'movie' ? item.original_title : item.name}
+                                title={item.name}
                                 imageURL={item.imageUrl} /> } />
                               
 
@@ -87,15 +89,23 @@ const Favorite = (props) => {
     )
     }
     const ListItem = ({ title, imageURL, navigation, id, media_type }) => {
-
+        console.log({ title, imageURL, navigation, id, media_type })
         return (
             <TouchableOpacity
-                style={{ width: Dimensions.get('window').width / 3.25, margin: 5 }} onPress={() => navigation.navigate('Detail Screen', { params: { id: id, media_type: media_type, imageUrl: imageURL, name: title } })} activeOpacity={0.8}>
+                style={{ width: Dimensions.get('window').width / 3.25, margin: 5 }} onPress={() => {
+                    Values.params={ id, media_type: media_type != undefined ? media_type : 'movie', imageUrl: imageURL, name: title }
+           
+             
+    
+                      navigation.navigate('Detail Screen')
+            
+    
+                }}>
     
                 <View style={{ margin: 7 }}>
                     <View style={{ elevation: 10 }}>
                         {imageURL != null ? <Image fadeDuration={0} resizeMode='cover' style={{ width: '100%', aspectRatio: 0.67, borderRadius: 10 }}
-                            source={{ uri: 'https://image.tmdb.org/t/p/original' + imageURL }} /> : <FontAwesome5Icon style={{ textAlign: 'center', textAlignVertical: 'center', width: '100%', aspectRatio: 0.67, borderRadius: 10 }} name='camera' color='gray' size={40} />}
+                            source={{ uri: 'http://image.tmdb.org/t/p/original' + imageURL }} /> : <FontAwesome5Icon style={{ textAlign: 'center', textAlignVertical: 'center', width: '100%', aspectRatio: 0.67, borderRadius: 10 }} name='camera' color='gray' size={40} />}
     
                     </View>
                     <Text numberOfLines={2} style={{ color: 'white', maxWidth: Dimensions.get('window').width / 3.25, padding: 2, fontSize: 13 }}>{title}</Text>
@@ -123,7 +133,7 @@ const Favorite = (props) => {
         return (
     
             <View style={styles.imageContainer}>
-                <Image resizeMethod='auto' resizeMode='cover' style={{ width: '100%', height: '100%' }} source={{ uri: profilePath != null ? 'https://image.tmdb.org/t/p/original' + profilePath : 'https://cdn.pixabay.com/photo/2018/04/18/18/56/user-3331256_1280.png' }} />
+                <FastImage resizeMethod='auto' resizeMode='cover' style={{ width: '100%', height: '100%' }} source={{ uri: profilePath != null ? 'http://image.tmdb.org/t/p/original' + profilePath : 'http://cdn.pixabay.com/photo/2018/04/18/18/56/user-3331256_1280.png' }} />
             </View>
         )
     }

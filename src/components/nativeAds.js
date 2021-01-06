@@ -33,7 +33,7 @@ const NativeAds = ({ changeShowState, showAd }) => {
                         justifyContent: 'space-around'
                     }}
                     onAdLoaded={() => changeShowState()}
-                    adUnitID="ca-app-pub-3940256099942544/2247696110" // TEST adUnitID
+                    adUnitID="ca-app-pub-2852605001804865/4123572170" // TEST adUnitID
                 >
                     {showAd && <View
                         style={{

@@ -83,7 +83,7 @@ export const fetchDetail = async (media_type,id) => {
       language:'en'
     }
   }).then(res=>{
-    //console.log(res.data)
+
 
     return res.data
   }).catch(err=>console.log(err))

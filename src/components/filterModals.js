@@ -71,7 +71,7 @@ const SortbyFilter = ({ state = 'desc', data, selectedId,changeProperties }) => 
                 style={{ width: '100%' }}
                 data={data}
                 renderItem={({ item }) => {
-                    console.log(item)
+                
                     return <RenderItem cpType="setSortFilter" changeProperties={changeProperties}  item={item} key={item.id} dataText={item.text} isSelected={item.id == selectedId ? true : false} />
                 }
                 }
@@ -88,13 +88,13 @@ const SortByGenres=({data,selectedIds,state,changeProperties})=>{
             <View style={{ flexDirection: 'row', marginBottom: 2 }}>
 
                 <TouchableOpacity  activeOpacity={0.7} delayPressOut={0} onPress={() => changeProperties('movie','setSortGenresType')}>
-                  <View style={{ elevation: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state == 'tvShow' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
+                  <View style={{ elevation:  0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state == 'tvShow' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
                     
                     <Text style={{ color: 'white' }}>MOVIE</Text>
                   </View>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={0.7} onPress={() => changeProperties('tvShow','setSortGenresType')} >
-                   <View style={{ elevation: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state != 'tvShow' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
+                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: state != 'tvShow' ? null : 'red', padding: 5.5, borderColor: 'red', borderWidth: 2, borderRadius: 5, margin: 6 }}>
                    
                     <Text style={{ color: 'white' }}>TV SHOW</Text>
                    </View>
@@ -105,7 +105,7 @@ const SortByGenres=({data,selectedIds,state,changeProperties})=>{
                 style={{ width: '100%',height:'100%',paddingBottom:10}}
                 data={state =='tvShow'? genresLists.tvShowGenres:genresLists.movieGenres}
                 renderItem={({ item }) => {
-                    console.log(item)
+                 
                     return <RenderItem cpType={state =='tvShow'?'setGenresSelectedIdsTv':'setGenresSelectedIdsMovie'} changeProperties={changeProperties}  item={item} key={item.id} dataText={item.name} isSelected={selectedIds[state].includes(item.id)} />
                 }
                 }
@@ -138,8 +138,8 @@ const SortByDate=({onDataItemSelected,selectedDate})=>{
 
 const SortByAvarage=({selectedAvareges,changeProperties})=>{
   return(<View style={{flexDirection:"row",flexWrap:"wrap"}}>
-      <Text style={{flexBasis:'50%',color:"green",fontWeight:"bold",fontSize:20,paddingLeft:10}}>min</Text>
-      <Text style={{flexBasis:'50%',color:"green",fontSize:20,fontWeight:"bold",paddingLeft:10,paddingBottom:10}}>max</Text>
+      <Text style={{flexBasis:'50%',color:"white",fontWeight:"bold",fontSize:20,paddingLeft:10}}>min</Text>
+      <Text style={{flexBasis:'50%',color:"white",fontSize:20,fontWeight:"bold",paddingLeft:10,paddingBottom:10}}>max</Text>
      <FlatList
      key="min"
      style={{flexBasis:Dimensions.get('window').width / 1.35/2,}}

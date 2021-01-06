@@ -3,8 +3,9 @@ const { AsyncStorage } = require("react-native");
 
 
 export const saveToStorage = async (id, name, media_type, imageUrl) => {
+    console.log( { id, name, media_type, imageUrl})
     var item = { id, name, media_type, imageUrl}
-    console.log(item, '1111111111');
+  
 
     return await AsyncStorage.setItem(id.toString(), JSON.stringify(item))
 

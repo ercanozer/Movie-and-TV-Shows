@@ -12,7 +12,9 @@ import shortid from 'shortid'
 import { windowHeight } from '../styles'
 import { saveToStorage, removeItemFromStorage } from '../utilities/saveFavorite'
 import SvgVoteIcon from '../components/icons/VoteIcon'
-
+import { CommonActions } from '@react-navigation/native'
+import {Values} from '../utilities/detailInfoTransporter'
+import FastImage from 'react-native-fast-image'
 
 
 
@@ -32,23 +34,23 @@ export default class DetailScreen extends Component {
 
     }
 
-   
-    routes = this.props.route.params;
+    
+    routes =Values.params;
     async componentDidMount() {
     
-       
-     console.log("CALISIYORRUMM")
+       console.log("calistizxxxxxxxxxxxxxxxxxxxxxxxxxx",Values.params)
+ 
         const keys = await AsyncStorage.getAllKeys();
-        if (keys.includes(this.routes.params.id.toString())) this.setState({ isFavorite: true })
-        const allData = await fetchDetail(this.routes.params.media_type, this.routes.params.id);
-        const castData = await fetchCast(this.routes.params.media_type, this.routes.params.id);
+        if (keys.includes(Values.params.id.toString())) this.setState({ isFavorite: true })
+        const allData = await fetchDetail(Values.params.media_type, Values.params.id);
+        const castData = await fetchCast(Values.params.media_type, Values.params.id);
         var images = [];
-        images.push('https://image.tmdb.org/t/p/original' + allData.backdrop_path)
+        images.push('http://image.tmdb.org/t/p/original' + allData.backdrop_path)
         allData.images.backdrops.forEach((element, index) => {
 
             if (index <= 5) {
 
-                images[index + 1] = 'https://image.tmdb.org/t/p/original' + element.file_path;
+                images[index + 1] = 'http://image.tmdb.org/t/p/original' + element.file_path;
             }
 
 
@@ -63,10 +65,10 @@ export default class DetailScreen extends Component {
 
         } = allData;
         var infos = [];
-        infos.push(...[{ 'Original Title': this.routes.params.name }, { Budget: budget }, { 'Original Language': original_language }, { revenue }, { Runtime: episode_run_time[0] }, { Runtime: runtime }, { production_companies }, { Seasons: seasons.length },])
+        infos.push(...[{ 'Original Title': Values.params.name }, { Budget: budget }, { 'Original Language': original_language }, { revenue }, { Runtime: episode_run_time[0] }, { Runtime: runtime }, { production_companies }, { Seasons: seasons.length },])
 
     
-        this.setState({ cast: castData, allData, backDrops: [...images], image: 'https://image.tmdb.org/t/p/original' + this.routes.params.imageUrl, detailInfo: infos, loading: false })
+        this.setState({ cast: castData, allData, backDrops: [...images], image: 'http://image.tmdb.org/t/p/original' + Values.params.imageUrl, detailInfo: infos, loading: false })
 
 
     }
@@ -75,8 +77,9 @@ export default class DetailScreen extends Component {
 
     
         if (type == 'add') {
+            console.log(Values.params.name,"bokbobkobkbokboobkobkb")
 
-            saveToStorage(this.state.allData.id, this.props.route.params.params.name, this.props.route.params.params.media_type, this.props.route.params.params.imageUrl).then(res => {
+            saveToStorage(this.state.allData.id, Values.params.name, Values.params.media_type, Values.params.imageUrl).then(res => {
 
                 this.setState({ isFavorite: true })
             }).catch(res =>res)
@@ -88,18 +91,21 @@ export default class DetailScreen extends Component {
     }
 
     backHandler=()=>{
-        this.props.navigation.navigate({root:"Home"});
+        this.props.navigation.goBack()
+        
+          
     }
 
 
 
+
     render() {
-        console.log(this.props)
+      
         return (
             !this.state.loading ? <View onLayout={({ nativeEvent }) => this.setState({ scrollHeight: nativeEvent.layout.height })}
                 style={styles.mainContainer}>
 
-                <BackIcon goBack={this.backHandler} name={this.props.route.params.params.name} height={this.state.offset} />
+                <BackIcon goBack={this.backHandler} name={Values.params.name} height={this.state.offset} />
 
                 <Animated.ScrollView
                     contentContainerStyle={{ top: 50 }}
@@ -112,7 +118,7 @@ export default class DetailScreen extends Component {
                                 },
                             },
                         ],
-                        { useNativeDriver: true }
+                        { useNativeDriver: false }
                     )}>
 
                     <View style={{ height: windowHeight / 1.8 }}>
@@ -122,10 +128,10 @@ export default class DetailScreen extends Component {
                             addFavorite={this.changeFavorite}
                             voteAvarage={this.state.allData.vote_average}
                             voteCount={this.state.allData.vote_count}
-                            relaseDate={this.props.route.params.params.media_type != 'tv' ? this.state.allData.release_date : this.state.allData.first_air_date}
+                            relaseDate={Values.params.media_type != 'tv' ? this.state.allData.release_date : this.state.allData.first_air_date}
                             status={this.state.allData.status}
                             uri={this.state.image}
-                            name={this.props.route.params.params.name} />
+                            name={Values.params.name} />
                     </View>
 
             
@@ -133,7 +139,7 @@ export default class DetailScreen extends Component {
                         style={{ paddingBottom: 50}} >
                         <TabView
                             id={this.state.allData.id}
-                            media_type={this.routes.params.media_type}
+                            media_type={Values.params.media_type}
                             navigation={this.props.navigation}
                             cast={this.state.cast}
                             setEnabled={() => this.setState({ enabled: !this.state.enabled })}
@@ -161,10 +167,10 @@ const MainInformation = ({ uri, name, relaseDate = '', status, voteAvarage = '',
                 padding: 7, height: windowHeight / 7.2, translateY: -windowHeight / 4.2 / 2
             }}>
 
-                <Image resizeMode='cover' source={uri ? { uri: uri } : null} style={{ borderRadius: 25, borderColor: 'white', borderWidth: 1.5, width: Dimensions.get('window').width / 3.7, height: windowHeight / 4.2 }} />
+                <FastImage resizeMode='cover' source={uri ? { uri: uri } : null} style={{ borderRadius: 25, borderColor: 'white', borderWidth: 1.5, width: Dimensions.get('window').width / 3.7, height: windowHeight / 4.2 }} />
             </View>
-            <View style={{ width: '60%', alignSelf: 'flex-start', paddingHorizontal: 18 }}>
-                <Text style={{ fontSize: 21, color: 'white', alignSelf: 'flex-start', fontFamily: 'sans-serif-medium' }}>{name}</Text>
+            <View  style={{ width: '60%', alignSelf: 'flex-start', paddingHorizontal: 18 }}>
+                <Text numberOfLines={2} style={{ fontSize: 21, color: 'white', alignSelf: 'flex-start', fontFamily: 'sans-serif-medium' }}>{name}</Text>
                 {relaseDate != '' && <Text typing={1} style={{ marginTop: 8, fontSize: 13, color: 'gray', alignSelf: 'flex-start', fontFamily: 'sans-serif-medium' }}>{relaseDate.split('-')[0]}  |  {status}</Text>
                 }
             </View>

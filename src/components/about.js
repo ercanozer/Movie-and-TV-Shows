@@ -25,15 +25,7 @@ render(){
 
                 this.props.setHeight(0,nativeEvent.layout.height)
                    this.setState({y:nativeEvent.layout.height})}} style={{translateY:translateY,paddingBottom:50}}>
-                       <View style={{alignSelf:'center',marginTop:15}}>
-
-                             <AdMobBanner
-                            
-                            adSize="banner"
-                            adUnitID="ca-app-pub-3940256099942544/6300978111"                       
-                            onAdFailedToLoad={error => console.error(error)}
-                            />
-                            </View>
+                     
                <View style={styles.textContainer}>
                    <Text suppressHighlighting={true} style={styles.overviewText}>{this.props.overview}</Text>
                </View>

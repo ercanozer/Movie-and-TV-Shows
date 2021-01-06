@@ -5,19 +5,21 @@ import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5'
 import { ScrollView } from 'react-native-gesture-handler'
 import { fetchGenres } from '../services/requests'
 import { GenresComponent, SearchView } from '../components'
+import {routeToDiscovery} from '../utilities/categoryRouter'
 import {
     AdMobBanner,
 } from 'react-native-admob'
 import { genresLists } from '../utilities/genresData'
+import FastImage from 'react-native-fast-image'
 
 
 const MAX_HEIGHT = 200
 const MIN_HEIGHT = 105
 
 
-const TopCategories = [{ name: 'Movies', imageURL: 'https://images8.alphacoders.com/100/thumb-1920-1003220.png', id: 'movie' }
-    , { name: 'TV Shows', id: 'tv', imageURL: 'https://images2.alphacoders.com/879/thumb-1920-879599.png' }
-    , { id: 'person', name: 'People', imageURL: 'https://images5.alphacoders.com/487/thumb-1920-487823.jpg' }]
+const TopCategories = [{ name: 'Movies', imageURL: 'http://images8.alphacoders.com/100/thumb-1920-1003220.png', id: 'movie' }
+    , { name: 'TV Shows', id: 'tv', imageURL: 'http://images2.alphacoders.com/879/thumb-1920-879599.png' }
+    , { id: 'person', name: 'People', imageURL: 'http://images5.alphacoders.com/487/thumb-1920-487823.jpg' }]
 
 export default class Discover extends Component {
     state = {
@@ -26,15 +28,13 @@ export default class Discover extends Component {
         genresTV: []
     }
 
-    async componentDidMount() {
+     componentDidMount() {
 
-        this.setState({
-            genresMovie: [...genresLists.movieGenres],
-            genresTV: [...genresLists.tvShowGenres]
-        })
+      
     }
 
     render() {
+    
 
         const headerY = this.state.offsetY.interpolate({
             inputRange: [0, MAX_HEIGHT - MIN_HEIGHT],
@@ -77,33 +77,32 @@ export default class Discover extends Component {
                         ],
                         { useNativeDriver: true } // <-- Add this
                     )} >
-                    <View style={{ paddingTop: MAX_HEIGHT - 50 }}>
-                        <Text style={{ color: 'red', fontWeight: '700', right: 10, fontSize: 14, alignSelf: 'flex-end', marginBottom: 9 }}>Discover by filters</Text>
+                    <View style={{ paddingTop: MAX_HEIGHT - 40 }}>
                         <View style={{ width: null, alignItems: 'center', alignSelf: 'center' }}>
                             <AdMobBanner
 
                                 adSize="banner"
-                                adUnitID="ca-app-pub-3940256099942544/6300978111"
+                                adUnitID="ca-app-pub-2852605001804865/7760649331"
                                 onAdFailedToLoad={error => console.error(error)}
                             />
                         </View>
-                        <Text style={{ color: 'white', alignSelf: "center", fontSize: 23, marginBottom: 20, fontFamily: 'sans-serif-medium' }}>Top Categories</Text>
+                        <Text style={{ color: 'white', alignSelf: "center", fontSize: 23, marginBottom: 20, fontFamily: 'sans-serif-medium',marginTop:17 }}>Top Categories</Text>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', marginBottom: 40 }}>
-                            {TopCategories.map((item, index) => <TopItem name={item.name} key={index.toString()} imageURL={item.imageURL} />)}
+                            {TopCategories.map((item, index) => <TopItem selectedTab={index} name={item.name} key={index.toString()} navigation={this.props.navigation} imageURL={item.imageURL} />)}
 
                         </View>
 
-                        <GenresComponent mainTitle='Movie Genres' allData={this.state.genresMovie} />
+                        <GenresComponent mainTitle='Movie Genres' navigation={this.props.navigation} allData={genresLists.movieGenres} />
                         <View style={{ width: null, alignItems: 'center', alignSelf: 'center' }}>
                             <AdMobBanner
 
                                 adSize="largeBanner"
-                                adUnitID="ca-app-pub-3940256099942544/6300978111"
+                                adUnitID="ca-app-pub-2852605001804865/2508322659"
                                 testDevices={[AdMobBanner.simulatorId]}
                                 onAdFailedToLoad={error => console.error(error)}
                             />
                         </View>
-                        <GenresComponent mainTitle='TV Show Genres' allData={this.state.genresTV} />
+                        <GenresComponent navigation={this.props.navigation} mainTitle='TV Show Genres' allData={genresLists.tvShowGenres} />
                     </View>
                 </Animated.ScrollView>
             </View>
@@ -127,10 +126,12 @@ const SearchComponent = ({ openSearch }) => {
 
 
 
-const TopItem = ({ name, imageURL }) => {
+const TopItem = ({ name, imageURL,navigation,selectedTab }) => {
 
     return (
-        <TouchableOpacity style={{ elevation: 15, borderRadius: 9, marginBottom: 15 }} activeOpacity={0.6}>
+        <TouchableOpacity onPress={()=>{
+            routeToDiscovery(navigation,name)
+        }} style={{ elevation: 15, borderRadius: 9, marginBottom: 15 }} activeOpacity={0.6}>
 
             <View style={{
                 borderRadius: 9, width: Dimensions.get('screen').width / 2.2,
@@ -139,7 +140,7 @@ const TopItem = ({ name, imageURL }) => {
                 overflow: 'hidden',
                 justifyContent: 'center'
             }}>
-                <Image style={{ width: '100%', height: '100%' }} resizeMode='center' source={{ uri: imageURL }} />
+                <FastImage style={{ width: '100%', height: '100%' }} resizeMode='center' source={{ uri: imageURL }} />
                 <View style={{ width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.5, position: 'absolute', }}></View>
                 <Text style={{ position: 'absolute', alignSelf: 'center', fontSize: 18, color: 'white', fontFamily: 'sans-serif-medium' }}>{name}</Text>
             </View>

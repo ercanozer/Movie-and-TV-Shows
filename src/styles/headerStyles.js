@@ -3,6 +3,7 @@ import {colors} from '../styles'
 
 const headerStyles=StyleSheet.create({
 mainHeader:{
+    zIndex:999,
     paddingRight:15,
     height:56,
     width:'100%',

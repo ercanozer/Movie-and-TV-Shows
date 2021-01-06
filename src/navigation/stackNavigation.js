@@ -7,10 +7,10 @@ const Stack = createStackNavigator();
 
 const StackNavigation = () => {
     return (
-        <Stack.Navigator screenOptions={{cardStyleInterpolator:CardStyleInterpolators.forVerticalIOS}} headerMode={"none"}>
+        <Stack.Navigator  headerMode={"none"}>
             <Stack.Screen name='Movie Library' component={BottomTab} />
             <Stack.Screen name='Detail Screen' component={DetailScreen} />
-            <Stack.Screen name='Search Screen' component={SearchView} />
+            <Stack.Screen options={{cardStyleInterpolator:CardStyleInterpolators.forModalPresentationIOS}} name='Search Screen' component={SearchView} />
         </Stack.Navigator>)
 }
 

@@ -16,7 +16,7 @@ export default class Recommendation extends Component {
     render() {
         return (
             <View style={{paddingLeft:10}}>
-                <ListComponent allData={this.state.allData} mainTitle={'none'} navigation={this.props.navigation}/>
+                <ListComponent allData={this.state.allData} media_type={this.props.media_type} mainTitle={'none'} navigation={this.props.navigation}/>
             </View>
         )
     }
